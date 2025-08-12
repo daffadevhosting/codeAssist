@@ -1,0 +1,111 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Copy, Check, Code2, Eye } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
+type CodeDisplayProps = {
+  code: string | null;
+  isLoading: boolean;
+  template: string;
+};
+
+
+export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copied]);
+
+  const handleCopy = () => {
+    if (code) {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+    }
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="space-y-4">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+      );
+    }
+
+    if (!code) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground overflow-hidden">
+          <Code2 className="w-16 h-16 mb-4 overflow-y-auto overflow-hidden" />
+          <h3 className="text-lg font-medium">Your generated code will appear here</h3>
+          <p className="text-sm">
+            Fill out the form to start generating code.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <ScrollArea className="h-full w-full overflow-y-auto overflow-hidden">
+         <pre className="text-sm whitespace-pre-wrap break-words overflow-y-auto overflow-hidden">
+            <code className="font-code overflow-y-auto overflow-hidden">{code}</code>
+         </pre>
+      </ScrollArea>
+    );
+  };
+  
+  return (
+    <div className="h-full flex flex-col border border-border rounded-md">
+      <div className="flex items-center justify-between py-3 px-4 border-b border-border">
+        <h3 className="text-lg font-headline">Generated Code</h3>
+        {code && !isLoading && (
+          <div className="flex items-center gap-2">
+            {template === 'html' && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Preview code">
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[90vw] h-[90vh] flex flex-col">
+                  <DialogHeader>
+                    <DialogTitle>HTML Preview</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex-1 border rounded-md">
+                    <iframe
+                      srcDoc={code || ''}
+                      title="HTML Preview"
+                      className="w-full h-full"
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+            <Button variant="ghost" size="icon" onClick={handleCopy} aria-label="Copy code">
+              {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+            </Button>
+          </div>
+        )}
+      </div>
+      <div className="relative h-full max-h-[650px] flex-1 p-4 overflow-y-auto overflow-hidden">
+        {renderContent()}
+      </div>
+    </div>
+  );
+}
+
