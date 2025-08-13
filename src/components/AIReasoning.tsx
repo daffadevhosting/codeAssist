@@ -15,8 +15,8 @@ export function AIReasoning({ reasoning, isLoading }: AIReasoningProps) {
   const typedReasoning = useTypingEffect(reasoning);
   if (isLoading) {
     return (
-      <div className="h-5/6">
-        <Card className="h-full">
+      <div className="h-5/6 w-full">
+        <Card className="h-full w-full">
           <CardHeader>
             <CardTitle>AI Reasoning</CardTitle>
           </CardHeader>
@@ -37,7 +37,7 @@ export function AIReasoning({ reasoning, isLoading }: AIReasoningProps) {
         <CardTitle>AI Reasoning</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-full py-4">
+        <ScrollArea className="h-full w-full py-4">
           <span className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {typedReasoning}

@@ -58,7 +58,7 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
     }
 }
 
-export async function generateCode(prompt: string, template: string, apiKey: string): Promise<{
+export async function generateCode(prompt: string, template: string, apiKey: string, reasoning: string | null): Promise<{
   code: string | null;
   reasoning: string | null;
   error: string | null;

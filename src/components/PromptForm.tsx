@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Bot, Code, Globe, PenSquare, Sparkles } from "lucide-react";
 import { z } from "zod";
 import React from 'react';
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -117,7 +116,7 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
   return (
     <Form {...form}>
       {/* 3. Pembaruan handleSubmit dengan dua argumen: onValid dan onInvalid */}
-      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="relative justify-end space-y-2 flex flex-col max-h-screen h-full">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="relative justify-end space-y-4 flex flex-col max-h-screen h-full">
         <FormField
           control={form.control}
           name="prompt"
