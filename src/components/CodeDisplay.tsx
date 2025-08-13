@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Copy, Check, Code2, Eye } from "lucide-react";
+import { Copy, Check, Code2, Eye, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useLicenseCheck from '@/hooks/useLicenseCheck';
 import LockScreen from '@/components/ui/LockScreen';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useLineByLineEffect } from "@/hooks/use-line-by-line-effect";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 type CodeDisplayProps = {
   code: string | null;
@@ -45,13 +46,16 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
         <div className="space-y-4">
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-1/2" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-2/3" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-full" />
         </div>
       );
     }
@@ -90,15 +94,19 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
                     <Eye className="h-4 w-4" />
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-[90vw] h-[90vh] flex flex-col">
-                  <DialogHeader>
-                    <DialogTitle>HTML Preview</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex-1 border rounded-md">
+                <DialogContent className="p-0 m-0 w-screen h-screen max-w-full rounded-none border-0">
+                  <DialogTitle className="hidden"></DialogTitle>
+                    <DialogClose asChild>
+                      <Button variant="ghost" size="icon" className="absolute right-4 top-3">
+                        <X className="h-5 w-5 text-red-600" />
+                        <span className="sr-only">Close</span>
+                      </Button>
+                    </DialogClose>
+                  <div className="flex-1">
                     <iframe
                       srcDoc={code || ''}
                       title="HTML Preview"
-                      className="w-full h-full"
+                      className="w-full h-full border-0"
                     />
                   </div>
                 </DialogContent>

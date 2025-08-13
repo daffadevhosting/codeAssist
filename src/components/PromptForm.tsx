@@ -2,6 +2,7 @@
 
 import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Bot, Code, Globe, PenSquare, Sparkles } from "lucide-react";
 import { z } from "zod";
 import React from 'react';
 
@@ -22,14 +23,39 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 
 const formSchema = z.object({
   template: z.string({
     required_error: "Please select a template.",
   }),
-  prompt: z.string().min(20, {
-    message: "Prompt harus memiliki setidaknya 20 karakter untuk hasil generate maksimal.", // Pesan error bisa diubah
+  model: z.string({ // [BARU] Tambahan field model
+    required_error: "Please select a model.",
   }),
+  prompt: z.string(), // Hapus validasi min(10) dari sini
+}).superRefine((data, ctx) => {
+  // Terapkan validasi kondisional
+  if (data.template === 'url_redesign') {
+    if (!data.prompt.startsWith('http')) {
+      if (data.prompt.length < 5) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Silakan masukkan URL yang valid.",
+          path: ['prompt'],
+        });
+      }
+    }
+  } else {
+    // Jika bukan URL, terapkan validasi minimal 10 karakter
+    if (data.prompt.length < 10) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Prompt harus memiliki setidaknya 10 karakter.",
+        path: ['prompt'],
+      });
+    }
+  }
 });
 
 export type PromptFormValues = z.infer<typeof formSchema>;
@@ -52,17 +78,21 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
     defaultValues: {
       template: "react",
       prompt: "",
+      model: "gemini-2.5-pro",
     },
   });
 
   const { toast } = useToast();
   const template = form.watch("template");
 
+
+
   const onSubmit = (data: PromptFormValues) => {
     onGenerate(data);
     form.reset({
-        prompt: "",
-        template: data.template
+      prompt: "",
+      template: data.template,
+      model: data.model,
     });
   };
 
@@ -77,10 +107,17 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Mencegah baris baru
+      form.handleSubmit(onSubmit, onInvalid)(); // Memicu submit form
+    }
+  };
+
   return (
     <Form {...form}>
       {/* 3. Pembaruan handleSubmit dengan dua argumen: onValid dan onInvalid */}
-      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="relative justify-end space-y-4 flex flex-col max-h-screen h-full">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="relative justify-end space-y-2 flex flex-col max-h-screen h-full">
         <FormField
           control={form.control}
           name="prompt"
@@ -93,9 +130,10 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
                     className="pr-14 pb-12 h-full"
                     {...field}
                     disabled={isLoading}
+                    onKeyDown={handleKeyDown} 
                   />
                 </FormControl>
-                <div className="absolute bottom-2 left-2">
+                <div className="absolute bottom-0 left-0 flex items-center gap-1">
                    <FormField
                     control={form.control}
                     name="template"
@@ -115,6 +153,29 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
                           </SelectContent>
                         </Select>
                       </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="model"
+                    render={({ field }) => (
+                       <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isLoading}>
+                            <Bot className="h-8 w-8" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuLabel className="flex justify-start items-center gap-2"><Bot className="h-4 w-4" /> Pilih Model AI</DropdownMenuLabel>
+                           <DropdownMenuSeparator />
+                          <DropdownMenuRadioGroup value={field.value} onValueChange={field.onChange}>
+                            <DropdownMenuRadioItem value="gemma-3n-e2b-it">Gemma 3n E2B</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="gemini-1.5-flash">Gemini 1.5 Flash</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="gemini-2.5-flash">Gemini 2.5 Flash</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="gemini-2.5-pro">Gemini 2.5 Pro</DropdownMenuRadioItem>
+                          </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     )}
                   />
                 </div>

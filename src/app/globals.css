@@ -5,6 +5,23 @@
 body {
   font-family: 'Source Code Pro', monospace;
 }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+.dark ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  
+.dark ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+  
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--secondary-foreground));
+  }
 
 @layer base {
   :root {

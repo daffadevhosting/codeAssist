@@ -68,7 +68,7 @@ export async function generateCode(prompt: string, template: string, apiKey: str
       throw new Error("API Key is missing. Please provide your API Key.");
     }
     
-    const geminiModel = 'gemini-2.0-flash';
+    const geminiModel = 'gemini-2.5-flash';
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: geminiModel, generationConfig: { responseMimeType: 'application/json' } });

@@ -12,7 +12,9 @@ import { AppLayout } from '@/components/AppLayout';
 
 export default function Home() {
   const [result, setResult] = useState<{ code: string | null; error: string | null }>({ code: null, error: null });
-  const [reasoning, setReasoning] = useState<string | null>(null);
+  const [reasoning, setReasoning] = useState<string | null>(
+    "👋️ Hi! I'll explain the generated code here. Please start by filling in the prompt below."
+  );
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -34,6 +36,8 @@ export default function Home() {
     }
 
     setIsLoading(true);
+    setResult({ code: null, error: null });
+    setReasoning(null);
 
     // Tentukan apakah ini permintaan modifikasi atau bukan
     const currentCode = result.code;
@@ -91,7 +95,7 @@ export default function Home() {
       </div>
       <div className="relative flex flex-col justify-end w-full md:w-1/3 p-4 gap-4 h-fit md:h-full overflow-hidden">
         <div className="hidden md:flex flex-1 overflow-y-auto">
-          <AIReasoning reasoning={reasoning} />
+          <AIReasoning reasoning={reasoning} isLoading={isLoading} />
         </div>
         <div className="h-1/4">
           <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} />
