@@ -72,7 +72,7 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
   return (
     <div className="h-full flex flex-col border border-border rounded-md">
       <div className="flex items-center justify-between py-3 px-4 border-b border-border">
-        <h3 className="text-lg font-headline">Generated Code</h3>
+        <h3 className="text-lg font-headline">Code Mod</h3>
         {code && !isLoading && (
           <div className="flex items-center gap-2">
             {template === 'html' && (

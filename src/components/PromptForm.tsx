@@ -59,7 +59,7 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onGenerate)} className="relative justify-end space-y-4 flex flex-col max-h-screen h-full">
+      <form onSubmit={form.handleSubmit(onGenerate)} className="relative justify-end space-y-2 flex flex-col max-h-screen h-full">
         <FormField
           control={form.control}
           name="prompt"

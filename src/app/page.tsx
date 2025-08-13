@@ -1,15 +1,13 @@
+// src/app/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { initializeGenAI } from '@/ai/client';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { PromptForm, type PromptFormValues } from '@/components/PromptForm';
 import { CodeDisplay } from '@/components/CodeDisplay';
 import { AIReasoning } from '@/components/AIReasoning';
 import { generateCode } from '@/app/actions';
-
-
 import { AppLayout } from '@/components/AppLayout';
 
 export default function Home() {
@@ -25,7 +23,6 @@ export default function Home() {
     const storedApiKey = localStorage.getItem("gemini_api_key");
     if (storedApiKey) {
       setApiKey(storedApiKey);
-      initializeGenAI(storedApiKey);
     } else {
       setIsModalOpen(true);
     }
@@ -43,7 +40,8 @@ export default function Home() {
     setTemplate(data.template === 'redesign' || data.template === 'url_redesign' ? 'html' : data.template);
 
     try {
-      const response = await generateCode(data.prompt, data.template);
+      // PERUBAHAN: Kirim apiKey sebagai argumen ke server action
+      const response = await generateCode(data.prompt, data.template, apiKey);
       if (response.code) {
         setResult({ code: response.code, error: null });
         setReasoning(response.reasoning);
@@ -69,10 +67,9 @@ export default function Home() {
     setIsLoading(false);
   };
 
-  const handleSaveApiKey = (apiKey: string) => {
-    localStorage.setItem("gemini_api_key", apiKey);
-    setApiKey(apiKey);
-    initializeGenAI(apiKey);
+  const handleSaveApiKey = (newApiKey: string) => {
+    localStorage.setItem("gemini_api_key", newApiKey);
+    setApiKey(newApiKey);
     setIsModalOpen(false);
   };
 
@@ -82,11 +79,11 @@ export default function Home() {
       <div className="flex-1 w-full md:w-2/3 p-4">
         <CodeDisplay code={result.code} isLoading={isLoading} template={template} />
       </div>
-      <div className="relative flex flex-col w-full md:w-1/3 p-4 gap-4 h-full overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
+      <div className="relative flex flex-col justify-end w-full md:w-1/3 p-4 gap-4 h-fit md:h-full overflow-hidden">
+        <div className="hidden md:block flex-1 overflow-y-auto">
           <AIReasoning reasoning={reasoning} />
         </div>
-        <div className="h-1/3">
+        <div className="h-1/4">
           <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} />
         </div>
       </div>

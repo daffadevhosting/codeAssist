@@ -1,8 +1,7 @@
+// src/app/actions.ts
 "use server";
 
-import { codeImprovements } from '@/ai/flows/code-improvements';
-import { redesignFromHtml } from '@/ai/flows/redesign-from-html';
-import { SetStateAction } from 'react';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const templates: Record<string, string> = {
   react: `import React from 'react';
@@ -37,8 +36,7 @@ export default function MyComponent() {
     </style>
 </head>
 <body class="bg-gray-100">
-    <!-- Your HTML here -->
-</body>
+    </body>
 </html>`,
 };
 
@@ -49,55 +47,101 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
             throw new Error(`Failed to fetch URL content. Status: ${response.status}`);
         }
         const text = await response.text();
-        // The service returns markdown, let's find the HTML block
-        const htmlMatch = text.match(/```html([\s\S]*?)```/);
+        const htmlMatch = text.match(/```html\n([\s\S]*?)\n```/);
         if (htmlMatch && htmlMatch[1]) {
             return htmlMatch[1].trim();
         }
-        // Fallback if no specific HTML block is found
-        return text;
+        // Fallback for plain text or if no markdown block is found
+        return text.replace(/##/g, '').replace(/\[.*?\]\(.*?\)/g, ''); // Remove markdown headers and links
     } catch (e: any) {
         console.error("Error fetching URL:", e);
         throw new Error("Could not retrieve content from the provided URL. Please check the URL and try again.");
     }
 }
 
-
-export async function generateCode(prompt: string, template: string): Promise<{
-  [x: string]: SetStateAction<string | null>; code: string | null; error: string | null 
+export async function generateCode(prompt: string, template: string, apiKey: string): Promise<{
+  code: string | null;
+  reasoning: string | null;
+  error: string | null;
 }> {
   try {
-    if (template === 'redesign' || template === 'url_redesign') {
-      let htmlContent = prompt;
-      if (template === 'url_redesign') {
-        htmlContent = await fetchHtmlFromUrl(prompt);
-      }
-
-      const result = await redesignFromHtml({
-        html: htmlContent,
-        description: "Redesign this HTML code into a modern layout with Tailwind CSS and subtle animations.",
-      });
-      if (result.redesignedCode) {
-        return { code: result.redesignedCode, error: null };
-      } else {
-        return { code: null, error: "Failed to redesign code. The AI returned an empty response." };
-      }
+    if (!apiKey) {
+      throw new Error("API Key is missing. Please provide your API Key.");
     }
 
-    const baseCode = templates[template] || templates['react'];
-    
-    const result = await codeImprovements({
-      code: baseCode,
-      description: prompt,
-    });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
 
-    if (result.improvedCode) {
-      return { code: result.improvedCode, error: null };
+    let fullPrompt = "";
+    const isRedesignFromHtml = template === 'redesign';
+    const isRedesignFromUrl = template === 'url_redesign';
+
+    if (isRedesignFromUrl) {
+      const htmlContent = await fetchHtmlFromUrl(prompt); // 'prompt' is the URL here
+      fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content, which might be a partial representation of a webpage's main content, and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.
+      
+      - You MUST build a full-page structure from top to bottom. This includes creating a suitable header, navigation, the main content area using the provided HTML, and a footer.
+      - The final output must be a single HTML file.
+      - Ensure the redesign is fully responsive.
+      - The response MUST be a JSON object with two keys: "redesignedCode" and "reasoning".
+      
+      Existing HTML Content to use for the main body:
+      \`\`\`html
+      ${htmlContent}
+      \`\`\`
+      
+      Description of Desired Redesign: "Redesign this content into a complete, modern webpage with a full top-to-bottom layout."`;
+    
+    } else if (isRedesignFromHtml) {
+        const htmlContent = prompt; // 'prompt' is the HTML code here
+        fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.
+
+      - The final output must be a single HTML file with Tailwind CSS classes.
+      - The response MUST be a JSON object with two keys: "redesignedCode" and "reasoning".
+
+      Existing HTML:
+      \`\`\`html
+      ${htmlContent}
+      \`\`\`
+
+      Description of Desired Redesign: "Redesign this HTML code into a modern layout with Tailwind CSS."`;
+
+    } else { // For React and HTML page generation
+      const baseCode = templates[template] || templates['react'];
+      fullPrompt = `You are an expert software developer. Your task is to improve and modify the code based on the description. The response must be a JSON object with two keys: "improvedCode" and "reasoning". The "reasoning" should be a brief explanation of the changes you made.
+      Existing Code:
+      ${baseCode}
+      Description of Desired Changes:
+      ${prompt}`;
+    }
+
+    const result = await model.generateContent(fullPrompt);
+    const response = await result.response;
+    let text = response.text();
+    
+    // Clean the response to ensure it's valid JSON
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch && jsonMatch[0]) {
+      text = jsonMatch[0];
+    }
+
+    const jsonResponse = JSON.parse(text);
+    const code = isRedesignFromHtml || isRedesignFromUrl ? jsonResponse.redesignedCode : jsonResponse.improvedCode;
+    const reasoning = jsonResponse.reasoning;
+
+    if (code) {
+      return { code, reasoning, error: null };
     } else {
-      return { code: null, error: "Failed to generate code. The AI returned an empty response." };
+      return { code: null, reasoning, error: "Failed to generate code. The AI returned an empty response." };
     }
   } catch (e: any) {
-    console.error(e);
-    return { code: null, error: e.message || "An unknown error occurred during code generation." };
+    console.error("Full error:", e);
+    if (e.message.includes('API_KEY_INVALID')) {
+        return { code: null, reasoning: null, error: "The provided API Key is invalid. Please check your key and try again." };
+    }
+     if (e instanceof SyntaxError) {
+      return { code: null, reasoning: null, error: "Failed to parse the AI's response. It may have generated an invalid format." };
+    }
+    return { code: null, reasoning: null, error: e.message || "An unknown error occurred." };
   }
 }
