@@ -13,11 +13,11 @@ export function AIReasoning({ reasoning }: AIReasoningProps) {
 
   return (
     <Card className="h-5/6">
-      <CardHeader>
+      <CardHeader className="border-b">
         <CardTitle>AI Reasoning</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full py-4">
           <p className="text-sm">{reasoning}</p>
         </ScrollArea>
       </CardContent>
