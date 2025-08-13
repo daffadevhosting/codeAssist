@@ -11,6 +11,10 @@ CodeAssist **[Code Mod]** is an AI-powered code generation assistant that helps 
 - **AI Reasoning:** Get an explanation of the generated code from the AI.
 - **Bring Your Own API Key:** Users can use their own Gemini API key.
 
+## Screen
+
+![screenshot](/localhost_8500.png)
+
 ## Getting Started
 
 To get a local copy up and running, follow these simple steps.

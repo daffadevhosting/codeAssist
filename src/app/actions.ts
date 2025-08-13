@@ -109,9 +109,9 @@ export async function generateCode(prompt: string, template: string, apiKey: str
 
     } else { // **PROMPT DIPERBAIKI DI SINI**
       const baseCode = templates[template] || templates['react'];
-      fullPrompt = `You are an expert software developer specializing in React and HTML. Based on the user's request, you will modify the provided base code.
+      fullPrompt = `You are an expert software developer specializing in REACT and HTML. Based on the user's request, you will modify the provided base code.
 
-      - For "React" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.
+      - For "REACT" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.
       - For "HTML" requests, you MUST generate a complete and valid HTML document with Tailwind CSS.
       - The response MUST be a JSON object with two keys: "improvedCode" (containing the final code) and "reasoning" (a brief explanation of your changes).
 

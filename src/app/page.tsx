@@ -89,11 +89,11 @@ export default function Home() {
         {/* Template tidak lagi relevan untuk mode modifikasi, tapi kita biarkan untuk display awal */}
         <CodeDisplay code={result.code} isLoading={isLoading} template={result.code ? 'html' : 'react'} />
       </div>
-      <div className="relative flex flex-col w-full md:w-1/3 p-4 gap-4 h-full overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
+      <div className="relative flex flex-col justify-end w-full md:w-1/3 p-4 gap-4 h-fit md:h-full overflow-hidden">
+        <div className="hidden md:flex flex-1 overflow-y-auto">
           <AIReasoning reasoning={reasoning} />
         </div>
-        <div className="h-1/3">
+        <div className="h-1/4">
           <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} />
         </div>
       </div>

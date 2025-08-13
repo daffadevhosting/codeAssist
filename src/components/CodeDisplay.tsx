@@ -114,7 +114,7 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
         {renderContent()}
         {isLocked && <LockScreen />}
       </div>
-          <small id="appId" style={{ display: isLocked ? 'none' : 'block', width: '100%' }} className='text-sm md:text-md mb-4 ml-4 text-gray-900 dark:text-primary w-full'>Code Mod Build by Daffa</small>
+          <small id="appId" style={{ display: isLocked ? 'none' : 'block', width: '100%' }} className='text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-full'>Code Mod Build by Daffa</small>
     </div>
   );
 }
