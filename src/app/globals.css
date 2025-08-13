@@ -44,17 +44,17 @@ body {
   .dark {
     --background: 0 0% 15.69%;
     --foreground: 0 0% 78.04%;
-    --card: 160 2% 27.1%;
+    --card: 0 0% 12.1%;
     --card-foreground: 0 0% 37.1%;
-    --popover: 263 30% 10%;
+    --popover: 160 2% 27.1%;
     --popover-foreground: 273 20% 90%;
     --primary: 140 1.35% 56.27%;
     --primary-foreground: 143 30% 10%;
     --secondary: 263 30% 20%;
     --secondary-foreground: 273 20% 90%;
-    --muted: 160 2% 27.1%;
+    --muted: 143 30% 10%;
     --muted-foreground: 0 0% 46.1%;
-    --accent: 160 2% 27.1%;
+    --accent: 143 30% 10%;
     --accent-foreground: 0 0% 78.04%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;

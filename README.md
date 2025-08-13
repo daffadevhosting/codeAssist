@@ -1,7 +1,7 @@
 
-# CodeAssist
+# CodeAssist (Code Mod)
 
-CodeAssist is an AI-powered code generation assistant that helps you write code faster. It uses Google's Gemini model to generate code from natural language prompts.
+CodeAssist **[Code Mod]** is an AI-powered code generation assistant that helps you write code faster. It uses Google's Gemini model to generate code from natural language prompts.
 
 ## Features
 
@@ -24,32 +24,23 @@ To get a local copy up and running, follow these simple steps.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/your_username/codeassist.git
+   git clone https://github.com/daffadevhosting/codeAssist.git
    ```
 2. Install NPM packages
    ```sh
    npm install
    ```
-3. Create a `.env` file in the root of the project and add your Gemini API key:
-    ```
-    GEMINI_API_KEY=your_api_key
-    ```
-4. Start the development server
+3. Start the development server
     ```sh
     npm run dev
     ```
 
 ## Usage
 
-Once the application is running, you can:
+Once the application is running, a modal will appear asking you to enter your API key. The key will be stored in your browser's local storage for future use. you can:
 
 1.  Enter a prompt describing the code you want to generate.
 2.  Select a template (React or HTML).
 3.  Click the "Generate Code" button.
 
-If you don't have a `GEMINI_API_KEY` set in your environment, a modal will appear asking you to enter your API key. The key will be stored in your browser's local storage for future use.
-
-## Environment Variables
-
-- `GEMINI_API_KEY`: Your Gemini API key. This is required for the application to work.
 

@@ -1,9 +1,8 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Wand2 } from "lucide-react";
 import React from 'react';
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
+  FormMessage, // FormMessage bisa digunakan jika Anda ingin menampilkan error di bawah input
 } from "@/components/ui/form";
 import {
   Select,
@@ -22,13 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   template: z.string({
     required_error: "Please select a template.",
   }),
-  prompt: z.string().min(10, {
-    message: "Prompt must be at least 10 characters.",
+  prompt: z.string().min(20, {
+    message: "Prompt harus memiliki setidaknya 20 karakter untuk hasil generate maksimal.", // Pesan error bisa diubah
   }),
 });
 
@@ -55,11 +55,32 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
     },
   });
 
+  const { toast } = useToast();
   const template = form.watch("template");
+
+  const onSubmit = (data: PromptFormValues) => {
+    onGenerate(data);
+    form.reset({
+        prompt: "",
+        template: data.template
+    });
+  };
+
+  // 2. Buat fungsi onInvalid
+  const onInvalid = (errors: FieldErrors<PromptFormValues>) => {
+    if (errors.prompt) {
+      toast({
+        variant: "destructive",
+        title: "Input Tidak Valid",
+        description: errors.prompt.message,
+      });
+    }
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onGenerate)} className="relative justify-end space-y-2 flex flex-col max-h-screen h-full">
+      {/* 3. Pembaruan handleSubmit dengan dua argumen: onValid dan onInvalid */}
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="relative justify-end space-y-4 flex flex-col max-h-screen h-full">
         <FormField
           control={form.control}
           name="prompt"
@@ -101,6 +122,7 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
                   {isLoading ? "Generating..." : "Generate Code"}
                 </Button>
               </div>
+              {/* Anda juga bisa menambahkan <FormMessage /> di sini jika ingin error teks muncul di bawah input */}
             </FormItem>
           )}
         />
