@@ -78,9 +78,9 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
   };
   
   return (
-    <div className="h-full flex flex-col border border-border rounded-md">
+    <div className="relative h-full flex flex-col border border-border rounded-md">
       <div className="flex items-center justify-between py-3 px-4 border-b border-border">
-        <h3 className="text-lg font-headline">Code Mod</h3>
+        <h3 className="text-lg flex items-center gap-2 font-headline"><Code2 className="w-6 h-6" />Code Mod</h3>
         {code && !isLoading && (
           <div className="flex items-center gap-2">
             {template === 'html' && (
@@ -114,7 +114,7 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
         {renderContent()}
         {isLocked && <LockScreen />}
       </div>
-          <small id="appId" style={{ display: isLocked ? 'none' : 'block', width: '100%' }} className='text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-full'>Code Mod Build by Daffa</small>
+          <small id="appId" style={{ display: isLocked ? 'none' : 'block', width: '100%' }} className='absolute bottom-0 left-0 text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-fit'>Code Mod Build by Daffa</small>
     </div>
   );
 }
