@@ -18,7 +18,7 @@ To get a local copy up and running, follow these simple steps.
 ### Prerequisites
 
 - Node.js and npm installed on your machine.
-- A Gemini API key. You can get one from [Google AI Studio](https://aistudio.google.com/apikey).
+- A Gemini API key. You can get one from [Google AI](https://aistudio.google.com/apikey).
 
 ### Local Installation
 

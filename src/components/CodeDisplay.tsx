@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Copy, Check, Code2, Eye } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import useLicenseCheck from '@/hooks/useLicenseCheck';
+import LockScreen from '@/components/ui/LockScreen';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useLineByLineEffect } from "@/hooks/use-line-by-line-effect";
 
 type CodeDisplayProps = {
   code: string | null;
@@ -16,7 +18,9 @@ type CodeDisplayProps = {
 
 
 export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
+  const isLocked = useLicenseCheck();
   const [copied, setCopied] = useState(false);
+  const displayedCode = useLineByLineEffect(code);
 
   useEffect(() => {
     if (copied) {
@@ -26,6 +30,7 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
       return () => clearTimeout(timer);
     }
   }, [copied]);
+
 
   const handleCopy = () => {
     if (code) {
@@ -44,6 +49,9 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
           <Skeleton className="h-4 w-1/2" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-1/2" />
         </div>
       );
     }
@@ -63,7 +71,7 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
     return (
       <ScrollArea className="h-full w-full overflow-y-auto overflow-hidden">
          <pre className="text-sm whitespace-pre-wrap break-words overflow-y-auto overflow-hidden">
-            <code className="font-code overflow-y-auto overflow-hidden">{code}</code>
+            <code className="font-code overflow-y-auto overflow-hidden">{displayedCode}</code>
          </pre>
       </ScrollArea>
     );
@@ -104,7 +112,9 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
       </div>
       <div className="relative h-full max-h-[650px] flex-1 p-4 overflow-y-auto overflow-hidden">
         {renderContent()}
+        {isLocked && <LockScreen />}
       </div>
+          <small id="appId" style={{ display: isLocked ? 'none' : 'block', width: '100%' }} className='text-sm md:text-md mb-4 ml-4 text-gray-900 dark:text-primary w-full'>Code Mod Build by Daffa</small>
     </div>
   );
 }

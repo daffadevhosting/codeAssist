@@ -7,14 +7,13 @@ import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { PromptForm, type PromptFormValues } from '@/components/PromptForm';
 import { CodeDisplay } from '@/components/CodeDisplay';
 import { AIReasoning } from '@/components/AIReasoning';
-import { generateCode } from '@/app/actions';
+import { generateCode } from '@/app/actions'; 
 import { AppLayout } from '@/components/AppLayout';
 
 export default function Home() {
   const [result, setResult] = useState<{ code: string | null; error: string | null }>({ code: null, error: null });
   const [reasoning, setReasoning] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [template, setTemplate] = useState('react');
   const { toast } = useToast();
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,19 +34,30 @@ export default function Home() {
     }
 
     setIsLoading(true);
-    setResult({ code: null, error: null });
-    setReasoning(null);
-    setTemplate(data.template === 'redesign' || data.template === 'url_redesign' ? 'html' : data.template);
+
+    // Tentukan apakah ini permintaan modifikasi atau bukan
+    const currentCode = result.code;
+    const isModification = currentCode !== null && currentCode.trim() !== "";
+
+    // Kosongkan error sebelumnya
+    setResult(prev => ({ ...prev, error: null }));
+    
+    // Untuk modifikasi, reasoning bisa kita set secara langsung
+    if (isModification) {
+        setReasoning(`Menerapkan perubahan: "${data.prompt}"...`);
+    } else {
+        setReasoning(null);
+    }
 
     try {
-      // PERUBAHAN: Kirim apiKey sebagai argumen ke server action
+      // Gunakan fungsi server yang baru
       const response = await generateCode(data.prompt, data.template, apiKey);
+      
       if (response.code) {
         setResult({ code: response.code, error: null });
         setReasoning(response.reasoning);
       } else {
-        setResult({ code: null, error: response.error });
-        setReasoning(null);
+        setResult(prev => ({ ...prev, error: response.error }));
         toast({
           variant: "destructive",
           title: "Error Generating Code",
@@ -60,8 +70,7 @@ export default function Home() {
         title: "Error Generating Code",
         description: error.message,
       });
-      setResult({ code: null, error: error.message });
-      setReasoning(null);
+      setResult(prev => ({ ...prev, error: error.message }));
     }
 
     setIsLoading(false);
@@ -77,13 +86,14 @@ export default function Home() {
     <AppLayout>
       <ApiKeyModal open={isModalOpen} onSave={handleSaveApiKey} />
       <div className="flex-1 w-full md:w-2/3 p-4">
-        <CodeDisplay code={result.code} isLoading={isLoading} template={template} />
+        {/* Template tidak lagi relevan untuk mode modifikasi, tapi kita biarkan untuk display awal */}
+        <CodeDisplay code={result.code} isLoading={isLoading} template={result.code ? 'html' : 'react'} />
       </div>
-      <div className="relative flex flex-col justify-end w-full md:w-1/3 p-4 gap-4 h-fit md:h-full overflow-hidden">
-        <div className="hidden md:block flex-1 overflow-y-auto">
+      <div className="relative flex flex-col w-full md:w-1/3 p-4 gap-4 h-full overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           <AIReasoning reasoning={reasoning} />
         </div>
-        <div className="h-1/4">
+        <div className="h-1/3">
           <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} />
         </div>
       </div>

@@ -51,8 +51,7 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
         if (htmlMatch && htmlMatch[1]) {
             return htmlMatch[1].trim();
         }
-        // Fallback for plain text or if no markdown block is found
-        return text.replace(/##/g, '').replace(/\[.*?\]\(.*?\)/g, ''); // Remove markdown headers and links
+        return text.replace(/##/g, '').replace(/\[.*?\]\(.*?\)/g, '');
     } catch (e: any) {
         console.error("Error fetching URL:", e);
         throw new Error("Could not retrieve content from the provided URL. Please check the URL and try again.");
@@ -68,16 +67,18 @@ export async function generateCode(prompt: string, template: string, apiKey: str
     if (!apiKey) {
       throw new Error("API Key is missing. Please provide your API Key.");
     }
+    
+    const geminiModel = 'gemini-2.0-flash';
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
+    const model = genAI.getGenerativeModel({ model: geminiModel, generationConfig: { responseMimeType: 'application/json' } });
 
     let fullPrompt = "";
     const isRedesignFromHtml = template === 'redesign';
     const isRedesignFromUrl = template === 'url_redesign';
 
     if (isRedesignFromUrl) {
-      const htmlContent = await fetchHtmlFromUrl(prompt); // 'prompt' is the URL here
+      const htmlContent = await fetchHtmlFromUrl(prompt);
       fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content, which might be a partial representation of a webpage's main content, and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.
       
       - You MUST build a full-page structure from top to bottom. This includes creating a suitable header, navigation, the main content area using the provided HTML, and a footer.
@@ -93,7 +94,7 @@ export async function generateCode(prompt: string, template: string, apiKey: str
       Description of Desired Redesign: "Redesign this content into a complete, modern webpage with a full top-to-bottom layout."`;
     
     } else if (isRedesignFromHtml) {
-        const htmlContent = prompt; // 'prompt' is the HTML code here
+        const htmlContent = prompt;
         fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.
 
       - The final output must be a single HTML file with Tailwind CSS classes.
@@ -106,20 +107,27 @@ export async function generateCode(prompt: string, template: string, apiKey: str
 
       Description of Desired Redesign: "Redesign this HTML code into a modern layout with Tailwind CSS."`;
 
-    } else { // For React and HTML page generation
+    } else { // **PROMPT DIPERBAIKI DI SINI**
       const baseCode = templates[template] || templates['react'];
-      fullPrompt = `You are an expert software developer. Your task is to improve and modify the code based on the description. The response must be a JSON object with two keys: "improvedCode" and "reasoning". The "reasoning" should be a brief explanation of the changes you made.
-      Existing Code:
+      fullPrompt = `You are an expert software developer specializing in React and HTML. Based on the user's request, you will modify the provided base code.
+
+      - For "React" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.
+      - For "HTML" requests, you MUST generate a complete and valid HTML document with Tailwind CSS.
+      - The response MUST be a JSON object with two keys: "improvedCode" (containing the final code) and "reasoning" (a brief explanation of your changes).
+
+      Existing Code (template to modify):
+      \`\`\`${template}
       ${baseCode}
+      \`\`\`
+
       Description of Desired Changes:
-      ${prompt}`;
+      "${prompt}"`;
     }
 
     const result = await model.generateContent(fullPrompt);
     const response = await result.response;
     let text = response.text();
     
-    // Clean the response to ensure it's valid JSON
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch && jsonMatch[0]) {
       text = jsonMatch[0];
@@ -132,7 +140,7 @@ export async function generateCode(prompt: string, template: string, apiKey: str
     if (code) {
       return { code, reasoning, error: null };
     } else {
-      return { code: null, reasoning, error: "Failed to generate code. The AI returned an empty response." };
+      return { code: null, reasoning: null, error: "Failed to generate code. The AI returned an empty response." };
     }
   } catch (e: any) {
     console.error("Full error:", e);
