@@ -24,7 +24,7 @@ export default function Home() {
   const [result, setResult] = useState<{ code: string | null; error: string | null }>({ code: null, error: null });
   const [template, setTemplate] = useState('react');
   const [reasoning, setReasoning] = useState<string | null>(
-    "👋️ Hi! I'll explain the generated code here. Please start by filling in the prompt below."
+    "👋️ Hi! I'll explain the generated code here. Please start by filling in the prompt below. Select the template to generate from the dropdown menu in the input form. You can also change the AI model using the 'BOT' icon next to it. If you'd like to chat, select 'Obrolan Umum', and I'll be your chat partner."
   );
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -147,7 +147,7 @@ export default function Home() {
 
   // Komponen untuk menampilkan pesan obrolan
   const ChatDisplay = () => (
-    <div className="flex flex-col h-full border border-border rounded-md">
+    <div className="relative flex flex-col h-full md:h-full border border-border rounded-md">
       <div className="flex items-center justify-between py-3 px-4 border-b border-border">
         <h3 className="text-lg font-semibold">General Chat</h3>
       </div>
@@ -189,7 +189,7 @@ export default function Home() {
     <AppLayout>
       <ApiKeyModal open={isModalOpen} onSave={handleSaveApiKey} />
       
-      <div className="flex-1 w-full md:w-2/3 p-4 h-full">
+      <div className="flex-1 w-full h-3/4 md:h-full md:w-2/3 p-4">
         {template === 'public_chat' ? (
           <ChatDisplay />
         ) : (
@@ -203,7 +203,7 @@ export default function Home() {
             <AIReasoning reasoning={reasoning} isLoading={isLoading} />
           </div>
         )}
-        <div className={template === 'public_chat' ? 'h-auto' : 'h-1/4'}>
+        <div className={template === 'public_chat' ? 'h-1/4' : 'h-1/4'}>
           <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} />
         </div>
       </div>

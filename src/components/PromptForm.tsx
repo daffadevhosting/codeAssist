@@ -69,6 +69,7 @@ const placeholders: Record<string, string> = {
   html: "e.g., A simple landing page with a hero section and a call-to-action button.",
   redesign: "Paste the HTML code you want to redesign here.",
   url_redesign: "e.g., https://google.com",
+  public_chat: "Mulai obrolan atau tanya sesuatu.",
 };
 
 export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
