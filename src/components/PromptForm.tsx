@@ -62,6 +62,8 @@ export type PromptFormValues = z.infer<typeof formSchema>;
 type PromptFormProps = {
   onGenerate: (data: PromptFormValues) => void;
   isLoading: boolean;
+  isChat: boolean;
+  public_chat?: boolean; // [BARU] Tambahan properti public_chat
 };
 
 const placeholders: Record<string, string> = {
@@ -72,7 +74,7 @@ const placeholders: Record<string, string> = {
   public_chat: "Mulai obrolan atau tanya sesuatu.",
 };
 
-export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
+export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
   const form = useForm<PromptFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -130,7 +132,7 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
                     className="pr-14 pb-12 h-full"
                     {...field}
                     disabled={isLoading}
-                    onKeyDown={handleKeyDown} 
+                    onKeyDown={handleKeyDown}
                   />
                 </FormControl>
                 <div className="absolute bottom-0 left-0 flex items-center gap-1">
@@ -180,11 +182,18 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
                     )}
                   />
                 </div>
-                <Button type="submit" size="sm" className="absolute bottom-2 right-2" disabled={isLoading}>
-                  {isLoading ? "Generating..." : "Generate Code"}
-                </Button>
+                {
+                  template === "public_chat" ? (
+                    <Button type="submit" size="sm" className="absolute bottom-2 right-2" disabled={isLoading}>
+                      {isLoading ? "Thinking..." : "Send"}
+                    </Button>
+                  ) : (
+                    <Button type="submit" size="sm" className="absolute bottom-2 right-2" disabled={isLoading}>
+                      {isLoading ? "Generating..." : "Generate Code"}
+                    </Button>
+                  )
+                }
               </div>
-              {/* Anda juga bisa menambahkan <FormMessage /> di sini jika ingin error teks muncul di bawah input */}
             </FormItem>
           )}
         />
