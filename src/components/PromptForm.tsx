@@ -149,6 +149,7 @@ export function PromptForm({ onGenerate, isLoading }: PromptFormProps) {
                             <SelectItem value="html">HTML Page</SelectItem>
                             <SelectItem value="redesign">Redesign from HTML</SelectItem>
                             <SelectItem value="url_redesign">Redesign from URL</SelectItem>
+                            <SelectItem value="public_chat">Obrolan Umum</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormItem>

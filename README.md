@@ -10,10 +10,17 @@ CodeAssist **[Code Mod]** is an AI-powered code generation assistant that helps 
 - **Redesign from URL:** Redesign a web page from a URL.
 - **AI Reasoning:** Get an explanation of the generated code from the AI.
 - **Bring Your Own API Key:** Users can use their own Gemini API key.
+   * ### New Features:
+   * **Added Models**: Users can select a model via the 'Bot' icon dropdown. These range from Gemma 3 to Gemini 2.5 Pro.
+   * **Added General Chat**: The AI can receive conversations like a typical chatbot and discuss technology by selecting 'Obrolan Umum' from the dropdown.
 
 ## Screen
 
-![screenshot](/localhost_8500.png)
+| Desktop | Mobile |
+|-----------------|------------|
+| ![screenshot](/localhost_8500.png) | ![screenshot](/GalaxyS8+.png) |
+
+
 
 ## Getting Started
 

@@ -1,14 +1,13 @@
-// src/app/actions.ts
 "use server";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const templates: Record<string, string> = {
   react: `import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Button } from \"@/components/ui/button\";
+import { Input } from \"@/components/ui/input\";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from \"@/components/ui/card\";
+import { Label } from \"@/components/ui/label\";
 
 // When creating components, use shadcn/ui components by default.
 // Available components: Button, Input, Card, Label, Select, Textarea, Checkbox, etc.
@@ -51,7 +50,7 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
         if (htmlMatch && htmlMatch[1]) {
             return htmlMatch[1].trim();
         }
-        return text.replace(/##/g, '').replace(/\[.*?\]\(.*?\)/g, '');
+        return text.replace(/##/g, '').replace(/\\\[.*?\\\\]\(.*?\\\\\)/g, '');
     } catch (e: any) {
         console.error("Error fetching URL:", e);
         throw new Error("Could not retrieve content from the provided URL. Please check the URL and try again.");
@@ -68,7 +67,7 @@ export async function generateCode(prompt: string, template: string, apiKey: str
       throw new Error("API Key is missing. Please provide your API Key.");
     }
     
-    const geminiModel = 'gemini-2.5-flash';
+    const geminiModel = 'gemini-1.5-flash';
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: geminiModel, generationConfig: { responseMimeType: 'application/json' } });
@@ -76,52 +75,30 @@ export async function generateCode(prompt: string, template: string, apiKey: str
     let fullPrompt = "";
     const isRedesignFromHtml = template === 'redesign';
     const isRedesignFromUrl = template === 'url_redesign';
+    const isPublicChat = template === 'public_chat';
 
     if (isRedesignFromUrl) {
       const htmlContent = await fetchHtmlFromUrl(prompt);
-      fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content, which might be a partial representation of a webpage's main content, and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.
-      
-      - You MUST build a full-page structure from top to bottom. This includes creating a suitable header, navigation, the main content area using the provided HTML, and a footer.
-      - The final output must be a single HTML file.
-      - Ensure the redesign is fully responsive.
-      - The response MUST be a JSON object with two keys: "redesignedCode" and "reasoning".
-      
-      Existing HTML Content to use for the main body:
-      \`\`\`html
-      ${htmlContent}
-      \`\`\`
-      
-      Description of Desired Redesign: "Redesign this content into a complete, modern webpage with a full top-to-bottom layout."`;
+      fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content, which might be a partial representation of a webpage's main content, and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.\n      \n      - You MUST build a full-page structure from top to bottom. This includes creating a suitable header, navigation, the main content area using the provided HTML, and a footer.\n      - The final output must be a single HTML file.\n      - Ensure the redesign is fully responsive.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n      \n      Existing HTML Content to use for the main body:\n      \
+      \`\`\`html\n      ${htmlContent}\n      \`\`\`\n      \n      Description of Desired Redesign: \"Redesign this content into a complete, modern webpage with a full top-to-bottom layout.\"
+      `;
     
     } else if (isRedesignFromHtml) {
         const htmlContent = prompt;
-        fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.
+        fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.\n\n      - The final output must be a single HTML file with Tailwind CSS classes.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n\n      Existing HTML:\n      \
+      \`\`\`html\n      ${htmlContent}\n      \`\`\`\n\n      Description of Desired Redesign: \"Redesign this HTML code into a modern layout with Tailwind CSS.\"
+      `;
 
-      - The final output must be a single HTML file with Tailwind CSS classes.
-      - The response MUST be a JSON object with two keys: "redesignedCode" and "reasoning".
-
-      Existing HTML:
-      \`\`\`html
-      ${htmlContent}
-      \`\`\`
-
-      Description of Desired Redesign: "Redesign this HTML code into a modern layout with Tailwind CSS."`;
-
-    } else { // **PROMPT DIPERBAIKI DI SINI**
+    } else if (isPublicChat) {
+      const chatAi = prompt;
+      fullPrompt = `You are a helpful and friendly chatbot. Your task is to respond to the user's message in a conversational way.\n      \n      - The response MUST be a JSON object with two keys: \"chatResponse\" (containing your reply) and \"reasoning\" (null for this case).\n      \n      User Message:\n      \
+      \`\`\`\n      ${chatAi}\n      \`\`\`\n      `;
+    } else { 
       const baseCode = templates[template] || templates['react'];
-      fullPrompt = `You are an expert software developer specializing in REACT and HTML. Based on the user's request, you will modify the provided base code.
-
-      - For "REACT" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.
-      - For "HTML" requests, you MUST generate a complete and valid HTML document with Tailwind CSS.
-      - The response MUST be a JSON object with two keys: "improvedCode" (containing the final code) and "reasoning" (a brief explanation of your changes).
-
-      Existing Code (template to modify):
-      \`\`\`${template}
-      ${baseCode}
-      \`\`\`
-
-      Description of Desired Changes:
-      "${prompt}"`;
+      fullPrompt = `You are an expert software developer specializing in REACT and HTML. Based on the user's request, you will modify the provided base code.\n\n      - For \"REACT\" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.\n      - For \"HTML\" requests, you MUST generate a complete and valid HTML document with Tailwind CSS.\n      - The response MUST be a JSON object with two keys: \"improvedCode\" (containing the final code) and \"reasoning\" (a brief explanation of your changes).\n\n      Existing Code (template to modify):\n      \
+      \`\`\`${template}\n      ${baseCode}\n      \
+      \`\`\`\n\n      Description of Desired Changes:\n      \"${prompt}\"
+      `;
     }
 
     const result = await model.generateContent(fullPrompt);
@@ -134,7 +111,16 @@ export async function generateCode(prompt: string, template: string, apiKey: str
     }
 
     const jsonResponse = JSON.parse(text);
-    const code = isRedesignFromHtml || isRedesignFromUrl ? jsonResponse.redesignedCode : jsonResponse.improvedCode;
+    
+    let code;
+    if (isPublicChat) {
+      code = jsonResponse.chatResponse;
+    } else if (isRedesignFromHtml || isRedesignFromUrl) {
+      code = jsonResponse.redesignedCode;
+    } else {
+      code = jsonResponse.improvedCode;
+    }
+    
     const reasoning = jsonResponse.reasoning;
 
     if (code) {
@@ -144,7 +130,13 @@ export async function generateCode(prompt: string, template: string, apiKey: str
     }
   } catch (e: any) {
     console.error("Full error:", e);
-    if (e.message.includes('API_KEY_INVALID')) {
+    const errorMessage = e.message || "";
+
+    if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('quota')) {
+        return { code: null, reasoning: null, error: "Kuota API Anda telah habis atau Anda mengirim terlalu banyak permintaan. Silakan coba lagi nanti." };
+    }
+    
+    if (errorMessage.includes('API_KEY_INVALID')) {
         return { code: null, reasoning: null, error: "The provided API Key is invalid. Please check your key and try again." };
     }
      if (e instanceof SyntaxError) {
