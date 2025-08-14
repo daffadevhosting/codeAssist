@@ -13,6 +13,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bot, User } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // Definisikan tipe untuk riwayat obrolan
 type ChatMessage = {
@@ -35,6 +37,7 @@ export default function Home() {
   // State baru untuk riwayat obrolan
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const storedApiKey = localStorage.getItem("gemini_api_key");
@@ -50,6 +53,10 @@ export default function Home() {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
+  }, [chatHistory]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory]);
 
   const handleGenerateCode = async (data: PromptFormValues) => {
@@ -151,7 +158,7 @@ export default function Home() {
       <div className="flex items-center justify-between py-3 px-4 border-b border-border">
         <h3 className="text-lg font-semibold">General Chat</h3>
       </div>
-      <ScrollArea className="flex-1 p-4" ref={chatContainerRef}>
+      <ScrollArea className="flex-1 p-4 block w-auto" ref={chatContainerRef}>
         <div className="space-y-4">
           {chatHistory.map((msg, index) => (
             <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
@@ -160,8 +167,12 @@ export default function Home() {
                   <AvatarFallback><Bot size={20} /></AvatarFallback>
                 </Avatar>
               )}
-              <div className={`rounded-lg p-3 text-sm ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                <p>{msg.content}</p>
+              <div className={`rounded-lg p-3 max-w-screen-md text-sm ${msg.role === 'user' ? 'bg-[#1d1d1d] text-[#111010]' : 'bg-muted'}`}>
+                  <div className="prose prose-sm text-wrap w-auto dark:prose-invert max-w-prose prose-p:leading-relaxed prose-code:text-wrap">
+                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                     </ReactMarkdown>
+                  </div>
               </div>
               {msg.role === 'user' && (
                  <Avatar className="w-8 h-8">
@@ -180,6 +191,7 @@ export default function Home() {
               </div>
             </div>
           )}
+            <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
     </div>
@@ -204,7 +216,7 @@ export default function Home() {
           </div>
         )}
         <div className={template === 'public_chat' ? 'h-1/4' : 'h-1/4'}>
-          <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} />
+          <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} isChat={false} />
         </div>
       </div>
     </AppLayout>

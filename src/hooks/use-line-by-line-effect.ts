@@ -1,7 +1,7 @@
 // src/hooks/use-line-by-line-effect.ts
 import { useState, useEffect } from 'react';
 
-export function useLineByLineEffect(fullCode: string | null, lineSpeed = 50) {
+export function useLineByLineEffect(fullCode: string | null, lineSpeed = 80) {
   const [displayedCode, setDisplayedCode] = useState('');
 
   useEffect(() => {

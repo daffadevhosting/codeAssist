@@ -69,9 +69,9 @@ type PromptFormProps = {
 const placeholders: Record<string, string> = {
   react: "e.g., A responsive login form with email and password fields, and a submit button.",
   html: "e.g., A simple landing page with a hero section and a call-to-action button.",
-  redesign: "Paste the HTML code you want to redesign here.",
+  redesign: "Paste the snippet HTML code you want to redesign here.",
   url_redesign: "e.g., https://google.com",
-  public_chat: "Mulai obrolan atau tanya sesuatu.",
+  public_chat: "Start a conversation or ask something.",
 };
 
 export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {

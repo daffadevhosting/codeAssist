@@ -1,7 +1,7 @@
 // src/hooks/use-typing-effect.ts
 import { useState, useEffect } from 'react';
 
-export function useTypingEffect(fullText: string | null, typingSpeed = 20) {
+export function useTypingEffect(fullText: string | null, typingSpeed = 2) {
   const [typedText, setTypedText] = useState('');
 
   useEffect(() => {
