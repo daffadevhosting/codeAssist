@@ -13,6 +13,7 @@ CodeAssist **[Code Mod]** is an AI-powered code generation assistant that helps 
    * ### New Features:
    * **Added Models**: Users can select a model via the 'Bot' icon dropdown. These range from Gemma 3 to Gemini 2.5 Pro.
    * **Added General Chat**: The AI can receive conversations like a typical chatbot and discuss technology by selecting 'Obrolan Umum' from the dropdown.
+   * **AI fixer / co-code**: At `Obrolan Umum`, AI can fix errors in problematic script code, and provide suggestions for improvements with new scripts. Simply submit the error-prone script snippet in the input form and submit.
 
 ## Screen
 

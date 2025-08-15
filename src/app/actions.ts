@@ -3,17 +3,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 
-type Message = {
-  role: 'user' | 'assistant';
+type ChatMessage = {
+  role: 'user' | 'assist';
   content: string;
 };
 
 const templates: Record<string, string> = {
   react: `import React from 'react';
-import { Button } from \"@/components/ui/button\";
-import { Input } from \"@/components/ui/input\";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from \"@/components/ui/card\";
-import { Label } from \"@/components/ui/label\";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 // When creating components, use shadcn/ui components by default.
 // Available components: Button, Input, Card, Label, Select, Textarea, Checkbox, etc.
@@ -63,7 +63,7 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
     }
 }
 
-export async function generateCode(messages: Message[], prompt: string, template: string, apiKey: string, reasoning: string | null): Promise<{
+export async function generateCode(messages: ChatMessage[], prompt: string, template: string, apiKey: string, existingCode: string | null): Promise<{
   code: string | null;
   reasoning: string | null;
   error: string | null;
@@ -73,7 +73,7 @@ export async function generateCode(messages: Message[], prompt: string, template
       throw new Error("API Key is missing. Please provide your API Key.");
     }
     
-    const geminiModel = 'gemini-2.5-flash';
+    const geminiModel = 'gemini-1.5-flash';
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: geminiModel, generationConfig: { responseMimeType: 'application/json' } });
@@ -85,26 +85,31 @@ export async function generateCode(messages: Message[], prompt: string, template
 
     if (isRedesignFromUrl) {
       const htmlContent = await fetchHtmlFromUrl(prompt);
-      fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content, which might be a partial representation of a webpage's main content, and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.\n      \n      - You MUST build a full-page structure from top to bottom. This includes creating a suitable header, navigation, the main content area using the provided HTML, and a footer.\n      - The final output must be a single HTML file.\n      - Ensure the redesign is fully responsive.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n      \n      Existing HTML Content to use for the main body:\n      \
-      \`\`\`html\n      ${htmlContent}\n      \`\`\`\n      \n      Description of Desired Redesign: \"Redesign this content into a complete, modern webpage with a full top-to-bottom layout.\"
+      fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content, which might be a partial representation of a webpage's main content, and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.\n      \n      - You MUST build a full-page structure from top to bottom. This includes creating a suitable header, navigation, the main content area using the provided HTML, and a footer.\n      - The final output must be a single HTML file.\n      - Ensure the redesign is fully responsive.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n      \n      Existing HTML Content to use for the main body:\n      \n      \
+      html\n      ${htmlContent}\n      \
+      \n      Description of Desired Redesign: \"Redesign this content into a complete, modern webpage with a full top-to-bottom layout.\"
       `;
     
     } else if (isRedesignFromHtml) {
         const htmlContent = prompt;
-        fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.\n\n      - The final output must be a single HTML file with Tailwind CSS classes.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n\n      Existing HTML:\n      \
-      \`\`\`html\n      ${htmlContent}\n      \`\`\`\n\n      Description of Desired Redesign: \"Redesign this HTML code into a modern layout with Tailwind CSS.\"
+        fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.\n\n      - The final output must be a single HTML file with Tailwind CSS classes.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n\n      Existing HTML:\n      \n      \
+      html\n      ${htmlContent}\n      \
+\n      Description of Desired Redesign: \"Redesign this HTML code into a modern layout with Tailwind CSS.\"
       `;
 
     } else if (isPublicChat) {
-      const chatAi = prompt;
-      fullPrompt = `You are **CoDa** the "CodeAssist AI Companion," a friendly and knowledgeable AI assistant specializing in software development technology and the latest AI news.\n
-      Your goal is to engage users in discussions, provide insights, and answer questions related to:\n \n 1. Current coding projects or challenges. You can offer advice, ideas, or simply be a conversation partner to help them solve problems.\n 2. The latest news, trends, and developments in technology, particularly Artificial Intelligence.\n \n Your Rules:\n \n - Always maintain a positive, supportive, and enthusiastic tone.\n \n - Provide informative and in-depth answers, not just short answers.\n \n - If you don't know something, be honest and say you don't have the information.\n \n - Don't provide financial or other non-technical advice. Focus on technology and coding.\n \n - Your responses MUST be in JSON format with a single key: \"chatResponse."\n      \n      User Message:\n      \
-      \`\`\`\n      ${chatAi}\n      \`\`\`\n      `;
+      const historyText = messages.map(msg => {
+        return `${msg.role === 'user' ? 'user' : 'assist'}: ${msg.content}`;
+      }).join('\n\n');
+      fullPrompt = `You are **CoDa** the "CodeAssist AI Companion," a friendly and knowledgeable AI assistant specializing in software development technology and the latest AI news.\n\n      Your goal is to engage users in discussions, provide insights, and answer questions related to:\n \n 1. Current coding projects or challenges. You can offer advice, ideas, or simply be a conversation partner to help them solve problems.\n 2. The latest news, trends, and developments in technology, particularly Artificial Intelligence.\n \n Your Rules:\n \n - Always maintain a positive, supportive, and enthusiastic tone.\n \n - Provide informative and in-depth answers, not just short answers.\n \n - If you don't know something, be honest and say you don't have the information.\n \n - Don't provide financial or other non-technical advice. Focus on technology and coding.\n \n - Your responses MUST be in JSON format with a single key: \"chatResponse.\"
+      \n      User Message:\n      \n      \
+      \n      ${historyText}\n      \
+      assist`;
     } else { 
-      const baseCode = templates[template] || templates['react'];
-      fullPrompt = `You are an expert software developer specializing in REACT and HTML. Based on the user's request, you will modify the provided base code.\n\n      - For \"REACT\" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.\n      - For \"HTML\" requests, you MUST generate a complete and valid HTML document with Tailwind CSS.\n      - The response MUST be a JSON object with two keys: \"improvedCode\" (containing the final code) and \"reasoning\" (a brief explanation of your changes).\n\n      Existing Code (template to modify):\n      \
-      \`\`\`${template}\n      ${baseCode}\n      \
-      \`\`\`\n\n      Description of Desired Changes:\n      \"${prompt}\"
+      const baseCode = existingCode || templates[template] || templates['react'];
+      fullPrompt = `You are an expert software developer specializing in REACT and HTML. Based on the user's request, you will modify the provided base code.\n\n      - For \"REACT\" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.\n      - For \"HTML\" requests, you MUST generate a complete and valid HTML document with Tailwind CSS.\n      - The response MUST be a JSON object with two keys: \"improvedCode\" (containing the final code) and \"reasoning\" (a brief explanation of your changes).\n\n      Existing Code (template to modify):\n      \n      \
+      ${template}\n      ${baseCode}\n      \
+\n      Description of Desired Changes:\n      \"${prompt}\"
       `;
     }
 

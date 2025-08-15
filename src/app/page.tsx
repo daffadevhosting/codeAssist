@@ -16,9 +16,11 @@ import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+const CHAT_HISTORY_KEY = "coda_chat_history";
+
 // Definisikan tipe untuk riwayat obrolan
 type ChatMessage = {
-  role: 'user' | 'ai';
+  role: 'user' | 'assist';
   content: string;
 };
 
@@ -26,7 +28,7 @@ export default function Home() {
   const [result, setResult] = useState<{ code: string | null; error: string | null }>({ code: null, error: null });
   const [template, setTemplate] = useState('react');
   const [reasoning, setReasoning] = useState<string | null>(
-    "👋️ Hi! I'll explain the generated code here. Please start by filling in the prompt below. Select the template to generate from the dropdown menu in the input form. You can also change the AI model using the 'BOT' icon next to it. If you'd like to chat, select 'Obrolan Umum', and I'll be your chat partner."
+    "👋️ Hi! I'll explain the generated code here. Please start by filling in the prompt below. Select the template to generate from the dropdown menu in the input form. You can also change the AI model using the `BOT` icon next to it. If you'd like to chat, select **'Obrolan Umum'**, and I'll be your chat partner, And let's sparring code. You can send me your error \`\`\`code\`\`\`, **I will fix it..**"
   );
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -34,10 +36,22 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isMobile = useIsMobile();
   
-  // State baru untuk riwayat obrolan
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  // Inisialisasi state chatHistory dari localStorage
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
+      return savedHistory ? JSON.parse(savedHistory) : [];
+    }
+    return [];
+  });
+  
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Efek untuk menyimpan chat history setiap kali berubah
+  useEffect(() => {
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
+  }, [chatHistory]);
 
   useEffect(() => {
     const storedApiKey = localStorage.getItem("gemini_api_key");
@@ -48,7 +62,6 @@ export default function Home() {
     }
   }, []);
 
-  // Auto-scroll ke pesan terbaru
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -66,21 +79,22 @@ export default function Home() {
     }
 
     setIsLoading(true);
-    // Perbarui template state saat ini
     setTemplate(data.template);
 
+    const currentChatHistory = [...chatHistory, { role: 'user', content: data.prompt }];
+
     if (data.template === 'public_chat') {
-      // Logika untuk Obrolan Umum
-      const newUserMessage: ChatMessage = { role: 'user', content: data.prompt };
-      setChatHistory(prev => [...prev, newUserMessage]);
+      const UserMessage: ChatMessage = { role: 'user', content: data.prompt };
+      const currentChatHistory = [...chatHistory, UserMessage];
+      setChatHistory(currentChatHistory);
       setReasoning(null);
       setResult({ code: null, error: null });
 
       try {
-        const response = await generateCode(data.prompt, data.template, apiKey, null);
+        const response = await generateCode(currentChatHistory, "", data.template, apiKey, null);
         if (response.code) {
-          const newAiMessage: ChatMessage = { role: 'ai', content: response.code };
-          setChatHistory(prev => [...prev, newAiMessage]);
+          const AiMessage: ChatMessage = { role: 'assist', content: response.code };
+          setChatHistory(prev => [...prev, AiMessage]);
         } else {
           toast({
             variant: "destructive",
@@ -95,22 +109,16 @@ export default function Home() {
           description: error.message,
         });
       }
-
     } else {
-      // Logika untuk Generasi Kode (yang sudah ada)
-      setChatHistory([]); // Kosongkan riwayat obrolan jika bukan mode obrolan
-      setResult({ code: null, error: null });
-      setReasoning(null);
-
       const currentCode = result.code;
       const isModification = currentCode !== null && currentCode.trim() !== "";
-      
-      if (isModification) {
-          setReasoning(`Applying changes: "${data.prompt}"...`);
-      }
+
+      setChatHistory([]);
+      setResult({ code: currentCode, error: null }); 
+      setReasoning(isModification ? `Applying changes: \"${data.prompt}\"...` : "Generating code...");
 
       try {
-        const response = await generateCode(data.prompt, data.template, apiKey, reasoning);
+        const response = await generateCode([], data.prompt, data.template, apiKey, currentCode);
         
         if (response.code) {
           setResult({ code: response.code, error: null });
@@ -124,7 +132,7 @@ export default function Home() {
             setReasoning(response.reasoning);
           }
         } else {
-          setResult({ code: null, error: response.error });
+          setResult({ code: currentCode, error: response.error });
           setReasoning(null);
           toast({
             variant: "destructive",
@@ -138,7 +146,7 @@ export default function Home() {
           title: "Error Generating Code",
           description: error.message,
         });
-        setResult({ code: null, error: error.message });
+        setResult({ code: currentCode, error: error.message });
         setReasoning(null);
       }
     }
@@ -152,7 +160,6 @@ export default function Home() {
     setIsModalOpen(false);
   };
 
-  // Komponen untuk menampilkan pesan obrolan
   const ChatDisplay = () => (
     <div className="relative flex flex-col h-full md:h-full border border-border rounded-md">
       <div className="flex items-center justify-between py-3 px-4 border-b border-border">
@@ -162,12 +169,12 @@ export default function Home() {
         <div className="space-y-4">
           {chatHistory.map((msg, index) => (
             <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-              {msg.role === 'ai' && (
+              {msg.role === 'assist' && (
                 <Avatar className="w-8 h-8">
                   <AvatarFallback><Bot size={20} /></AvatarFallback>
                 </Avatar>
               )}
-              <div className={`rounded-lg p-3 max-w-screen-md text-sm ${msg.role === 'user' ? 'bg-[#1d1d1d] text-[#111010]' : 'bg-muted'}`}>
+              <div className={`rounded-lg p-3 max-w-screen-md text-sm ${msg.role === 'user' ? 'bg-[#353434] shadow text-primary-foreground' : 'bg-muted'}`}>
                   <div className="prose prose-sm text-wrap w-auto dark:prose-invert max-w-prose prose-p:leading-relaxed prose-code:text-wrap">
                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {msg.content}
@@ -205,7 +212,7 @@ export default function Home() {
         {template === 'public_chat' ? (
           <ChatDisplay />
         ) : (
-          <CodeDisplay code={result.code} isLoading={isLoading} template={result.code ? 'html' : 'react'} />
+          <CodeDisplay code={result.code} isLoading={isLoading} template={template} />
         )}
       </div>
 
@@ -222,4 +229,3 @@ export default function Home() {
     </AppLayout>
   );
 }
-''
