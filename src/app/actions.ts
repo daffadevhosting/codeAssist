@@ -2,6 +2,12 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+
+type Message = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
 const templates: Record<string, string> = {
   react: `import React from 'react';
 import { Button } from \"@/components/ui/button\";
@@ -57,7 +63,7 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
     }
 }
 
-export async function generateCode(prompt: string, template: string, apiKey: string, reasoning: string | null): Promise<{
+export async function generateCode(messages: Message[], prompt: string, template: string, apiKey: string, reasoning: string | null): Promise<{
   code: string | null;
   reasoning: string | null;
   error: string | null;
@@ -91,7 +97,7 @@ export async function generateCode(prompt: string, template: string, apiKey: str
 
     } else if (isPublicChat) {
       const chatAi = prompt;
-      fullPrompt = `You are the "CodeAssist AI Companion," a friendly and knowledgeable AI assistant specializing in software development technology and the latest AI news.\n
+      fullPrompt = `You are **CoDa** the "CodeAssist AI Companion," a friendly and knowledgeable AI assistant specializing in software development technology and the latest AI news.\n
       Your goal is to engage users in discussions, provide insights, and answer questions related to:\n \n 1. Current coding projects or challenges. You can offer advice, ideas, or simply be a conversation partner to help them solve problems.\n 2. The latest news, trends, and developments in technology, particularly Artificial Intelligence.\n \n Your Rules:\n \n - Always maintain a positive, supportive, and enthusiastic tone.\n \n - Provide informative and in-depth answers, not just short answers.\n \n - If you don't know something, be honest and say you don't have the information.\n \n - Don't provide financial or other non-technical advice. Focus on technology and coding.\n \n - Your responses MUST be in JSON format with a single key: \"chatResponse."\n      \n      User Message:\n      \
       \`\`\`\n      ${chatAi}\n      \`\`\`\n      `;
     } else { 
