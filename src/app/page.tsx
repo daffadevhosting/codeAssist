@@ -7,7 +7,7 @@ import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { PromptForm, type PromptFormValues } from '@/components/PromptForm';
 import { CodeDisplay } from '@/components/CodeDisplay';
 import { AIReasoning } from '@/components/AIReasoning';
-import { generateCode } from '@/app/actions'; 
+import { executeAiGeneration } from '@/app/actions'; 
 import { AppLayout } from '@/components/AppLayout';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -91,7 +91,7 @@ export default function Home() {
       setResult({ code: null, error: null });
 
       try {
-        const response = await generateCode(currentChatHistory, "", data.template, apiKey, null, data.model);
+        const response = await executeAiGeneration(currentChatHistory, "", data.template, apiKey, null, data.model);
         if (response.code) {
           const AiMessage: ChatMessage = { role: 'assist', content: response.code };
           setChatHistory(prev => [...prev, AiMessage]);
@@ -118,7 +118,7 @@ export default function Home() {
       setReasoning(isModification ? `Applying changes: \"${data.prompt}\"...` : "Generating code...");
 
       try {
-        const response = await generateCode([], data.prompt, data.template, apiKey, currentCode, data.model);
+        const response = await executeAiGeneration([], data.prompt, data.template, apiKey, currentCode, data.model);
         
         if (response.code) {
           setResult({ code: response.code, error: null });

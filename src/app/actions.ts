@@ -69,7 +69,7 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
     }
 }
 
-export async function generateCode(messages: ChatMessage[], prompt: string, template: string, apiKey: string, existingCode: string | null, model: string): Promise<{
+export async function executeAiGeneration(messages: ChatMessage[], prompt: string, template: string, apiKey: string, existingCode: string | null, model: string): Promise<{
   code: string | null;
   reasoning: string | null;
   error: string | null;
@@ -93,17 +93,17 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
       const htmlContent = await fetchHtmlFromUrl(prompt);
       fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.
 
-- You MUST build a full-page structure (header, main content, footer).
-- The final output must be a single HTML file.
-- The response MUST be a valid JSON object with two keys: "redesignedCode" and "reasoning".
-- The value for "redesignedCode" MUST be a single JSON string containing the full HTML. Ensure all special characters and newlines within the HTML are properly escaped to create a valid JSON string.
+      - You MUST build a full-page structure (header, main content, footer).
+      - The final output must be a single HTML file.
+      - The response MUST be a valid JSON object with two keys: "redesignedCode" and "reasoning".
+      - The value for "redesignedCode" MUST be a single JSON string containing the full HTML. Ensure all special characters and newlines within the HTML are properly escaped to create a valid JSON string.
 
-Existing HTML Content to use for the main body:
-\`\`\`html
-${htmlContent}
-\`\`\`
+      Existing HTML Content to use for the main body:
+      \`\`\`html
+      ${htmlContent}
+      \`\`\`
 
-Description of Desired Redesign: "Redesign this content into a complete, modern webpage with a full top-to-bottom layout."
+      Description of Desired Redesign: "Redesign this content into a complete, modern webpage with a full top-to-bottom layout."
       `;
     
     } else if (isRedesignFromHtml) {
