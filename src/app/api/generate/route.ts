@@ -5,14 +5,14 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { prompt, template, apiKey, model, reasoning } = body;
+    const { prompt, template, apiKey, model, reasoning, existingCode } = body;
 
     if (!prompt || !template || !apiKey || !model) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Panggil server action kita yang sudah ada
-    const result = await generateCode([ { role: 'user', content: prompt } ], template, apiKey, reasoning, model);
+    const result = await generateCode([ { role: 'user', content: prompt } ], template, apiKey, reasoning, model, existingCode);
 
     return NextResponse.json(result);
 
