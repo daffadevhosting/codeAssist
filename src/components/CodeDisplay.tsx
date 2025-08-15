@@ -87,7 +87,7 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
         <h3 className="text-lg flex items-center gap-2 font-headline"><Code2 className="w-6 h-6" />Code Mod</h3>
         {code && !isLoading && (
           <div className="flex items-center gap-2">
-            {template === 'html' && (
+            {['html', 'redesign', 'url_redesign'].includes(template) && (
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon" aria-label="Preview code">

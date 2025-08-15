@@ -172,7 +172,6 @@ export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
                           <DropdownMenuLabel className="flex justify-start items-center gap-2"><Bot className="h-4 w-4" /> Pilih Model AI</DropdownMenuLabel>
                            <DropdownMenuSeparator />
                           <DropdownMenuRadioGroup value={field.value} onValueChange={field.onChange}>
-                            <DropdownMenuRadioItem value="gemma-3n-e2b-it">Gemma 3n E2B</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="gemini-2.0-flash">Gemini 2.0 Flash</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="gemini-2.5-flash">Gemini 2.5 Flash</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="gemini-2.5-pro">Gemini 2.5 Pro</DropdownMenuRadioItem>

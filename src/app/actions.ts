@@ -52,6 +52,12 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
             throw new Error(`Failed to fetch URL content. Status: ${response.status}`);
         }
         const text = await response.text();
+        // Coba ekstrak konten dari dalam body jika memungkinkan untuk mendapatkan hasil yang lebih bersih
+        const bodyMatch = text.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        if (bodyMatch && bodyMatch[1]) {
+            return bodyMatch[1].trim();
+        }
+        // Fallback ke metode lama jika body tidak ditemukan
         const htmlMatch = text.match(/```html\n([\s\S]*?)\n```/);
         if (htmlMatch && htmlMatch[1]) {
             return htmlMatch[1].trim();
@@ -85,16 +91,33 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
 
     if (isRedesignFromUrl) {
       const htmlContent = await fetchHtmlFromUrl(prompt);
-      fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content, which might be a partial representation of a webpage's main content, and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.\n      \n      - You MUST build a full-page structure from top to bottom. This includes creating a suitable header, navigation, the main content area using the provided HTML, and a footer.\n      - The final output must be a single HTML file.\n      - Ensure the redesign is fully responsive.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n      \n      Existing HTML Content to use for the main body:\n      \n      \
-      html\n      ${htmlContent}\n      \
-      \n      Description of Desired Redesign: \"Redesign this content into a complete, modern webpage with a full top-to-bottom layout.\"
+      fullPrompt = `You are an expert web designer. Your task is to take the provided HTML content and redesign it into a complete, modern, and visually appealing full-page layout using Tailwind CSS.
+
+- You MUST build a full-page structure (header, main content, footer).
+- The final output must be a single HTML file.
+- The response MUST be a valid JSON object with two keys: "redesignedCode" and "reasoning".
+- The value for "redesignedCode" MUST be a single JSON string containing the full HTML. Ensure all special characters and newlines within the HTML are properly escaped to create a valid JSON string.
+
+Existing HTML Content to use for the main body:
+\`\`\`html
+${htmlContent}
+\`\`\`
+
+Description of Desired Redesign: "Redesign this content into a complete, modern webpage with a full top-to-bottom layout."
       `;
     
     } else if (isRedesignFromHtml) {
         const htmlContent = prompt;
-        fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.\n\n      - The final output must be a single HTML file with Tailwind CSS classes.\n      - The response MUST be a JSON object with two keys: \"redesignedCode\" and \"reasoning\".\n\n      Existing HTML:\n      \n      \
-      html\n      ${htmlContent}\n      \
-\n      Description of Desired Redesign: \"Redesign this HTML code into a modern layout with Tailwind CSS.\"
+        fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.
+
+      - The final output must be a single HTML file with Tailwind CSS classes.
+      - The response MUST be a valid JSON object with two keys: "redesignedCode" and "reasoning". The value for "redesignedCode" MUST be a single JSON string with the HTML content properly escaped.
+
+      Existing HTML:
+      \`\`\`html
+      ${htmlContent}
+      \`\`\`
+      Description of Desired Redesign: "Redesign this HTML code into a modern layout with Tailwind CSS."
       `;
 
     } else if (isPublicChat) {
@@ -117,10 +140,14 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
     const response = await result.response;
     let text = response.text();
     
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch && jsonMatch[0]) {
-      text = jsonMatch[0];
+    // Membersihkan markdown fences jika model terkadang menambahkannya
+    // meskipun tipe mime sudah diatur.
+    if (text.startsWith("```json")) {
+        text = text.substring(7, text.length - 3).trim();
+    } else if (text.startsWith("```")) {
+        text = text.substring(3, text.length - 3).trim();
     }
+
 
     const jsonResponse = JSON.parse(text);
     
