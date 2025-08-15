@@ -5,14 +5,19 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { prompt, template, apiKey, model, reasoning, existingCode } = body;
+    // Ambil prompt dari 'messages' array atau langsung dari 'prompt'
+    const userPrompt = body.messages ? body.messages[0].content : body.prompt;
 
-    if (!prompt || !template || !apiKey || !model) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    // Pastikan prompt ada
+    if (!userPrompt) {
+        return NextResponse.json({ error: 'Prompt is missing' }, { status: 400 });
     }
 
-    // Panggil server action kita yang sudah ada
-    const result = await generateCode([ { role: 'user', content: prompt } ], template, apiKey, reasoning, model, existingCode);
+    // Ubah body.messages menjadi array yang benar jika belum ada
+    const messagesPayload = body.messages || [{ role: 'user', content: userPrompt }];
+
+    // Panggil server action
+    const result = await generateCode(messagesPayload, body.template, body.apiKey, body.reasoning, body.model, body.existingCode);
 
     return NextResponse.json(result);
 
