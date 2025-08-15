@@ -173,7 +173,7 @@ export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
                            <DropdownMenuSeparator />
                           <DropdownMenuRadioGroup value={field.value} onValueChange={field.onChange}>
                             <DropdownMenuRadioItem value="gemma-3n-e2b-it">Gemma 3n E2B</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="gemini-1.5-flash">Gemini 1.5 Flash</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="gemini-2.0-flash">Gemini 2.0 Flash</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="gemini-2.5-flash">Gemini 2.5 Flash</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="gemini-2.5-pro">Gemini 2.5 Pro</DropdownMenuRadioItem>
                           </DropdownMenuRadioGroup>

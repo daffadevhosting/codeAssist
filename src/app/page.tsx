@@ -91,7 +91,7 @@ export default function Home() {
       setResult({ code: null, error: null });
 
       try {
-        const response = await generateCode(currentChatHistory, "", data.template, apiKey, null);
+        const response = await generateCode(currentChatHistory, "", data.template, apiKey, null, data.model);
         if (response.code) {
           const AiMessage: ChatMessage = { role: 'assist', content: response.code };
           setChatHistory(prev => [...prev, AiMessage]);
@@ -118,7 +118,7 @@ export default function Home() {
       setReasoning(isModification ? `Applying changes: \"${data.prompt}\"...` : "Generating code...");
 
       try {
-        const response = await generateCode([], data.prompt, data.template, apiKey, currentCode);
+        const response = await generateCode([], data.prompt, data.template, apiKey, currentCode, data.model);
         
         if (response.code) {
           setResult({ code: response.code, error: null });

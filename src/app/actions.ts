@@ -63,17 +63,17 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
     }
 }
 
-export async function generateCode(messages: ChatMessage[], prompt: string, template: string, apiKey: string, existingCode: string | null): Promise<{
+export async function generateCode(messages: ChatMessage[], prompt: string, template: string, apiKey: string, existingCode: string | null, model: string): Promise<{
   code: string | null;
   reasoning: string | null;
   error: string | null;
 }> {
+    const geminiModel = model || 'gemini-2.0-flash';
+    
   try {
     if (!apiKey) {
       throw new Error("API Key is missing. Please provide your API Key.");
     }
-    
-    const geminiModel = 'gemini-1.5-flash';
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: geminiModel, generationConfig: { responseMimeType: 'application/json' } });
