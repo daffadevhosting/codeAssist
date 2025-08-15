@@ -69,7 +69,7 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
     }
 }
 
-export async function executeAiGeneration(messages: ChatMessage[], prompt: string, template: string, apiKey: string, existingCode: string | null, model: string): Promise<{
+export async function generateCode(messages: ChatMessage[], prompt: string, template: string, apiKey: string, existingCode: string | null, model: string): Promise<{
   code: string | null;
   reasoning: string | null;
   error: string | null;
@@ -78,6 +78,7 @@ export async function executeAiGeneration(messages: ChatMessage[], prompt: strin
     
   try {
     if (!apiKey) {
+      
       throw new Error("API Key is missing. Please provide your API Key.");
     }
 

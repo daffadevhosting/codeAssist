@@ -1,11 +1,11 @@
 // src/app/api/generate/route.ts
-import { executeAiGeneration } from '@/app/actions'; // Impor fungsi yang sudah kita buat
+import { generateCode } from '@/app/actions'; // Impor fungsi yang sudah kita buat
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("Menerima permintaan dari bot dengan body:", JSON.stringify(body, null, 2));
+    // Ambil prompt dari 'messages' array atau langsung dari 'prompt'
     const userPrompt = body.messages ? body.messages[0].content : body.prompt;
 
     // Pastikan prompt ada
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const messagesPayload = body.messages || [{ role: 'user', content: userPrompt }];
 
     // Panggil server action
-    const result = await executeAiGeneration(messagesPayload, body.template, body.apiKey, body.reasoning, body.model, body.existingCode);
+    const result = await generateCode(messagesPayload, body.template, body.apiKey, body.reasoning, body.model, body.existingCode);
 
     return NextResponse.json(result);
 
