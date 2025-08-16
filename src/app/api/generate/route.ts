@@ -5,7 +5,6 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // Ambil prompt dari 'messages' array atau langsung dari 'prompt'
     const userPrompt = body.messages ? body.messages[0].content : body.prompt;
 
     // Pastikan prompt ada

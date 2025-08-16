@@ -78,9 +78,8 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
     
   try {
     if (!apiKey) {
-      
       throw new Error("API Key is missing. Please provide your API Key.");
-    }
+    };
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: geminiModel, generationConfig: { responseMimeType: 'application/json' } });

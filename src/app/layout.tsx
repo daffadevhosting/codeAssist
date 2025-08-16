@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next';
+import { Analytics } from "@vercel/analytics/next"
 import './globals.css';
 import AppWrapper from "@/components/AppWrapper";
 import { Toaster } from "@/components/ui/toaster";
