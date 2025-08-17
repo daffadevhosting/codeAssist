@@ -7,14 +7,26 @@ import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { PromptForm, type PromptFormValues } from '@/components/PromptForm';
 import { CodeDisplay } from '@/components/CodeDisplay';
 import { AIReasoning } from '@/components/AIReasoning';
-import { generateCode } from '@/app/actions'; 
+import { generateCode } from '@/app/actions';
 import { AppLayout } from '@/components/AppLayout';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bot, User } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Bot, User, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const CHAT_HISTORY_KEY = "coda_chat_history";
 
@@ -35,7 +47,7 @@ export default function Home() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isMobile = useIsMobile();
-  
+
   // Inisialisasi state chatHistory dari localStorage
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
     if (typeof window !== 'undefined') {
@@ -44,7 +56,7 @@ export default function Home() {
     }
     return [];
   });
-  
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +85,7 @@ export default function Home() {
   }, [chatHistory]);
 
   const handleGenerateCode = async (data: PromptFormValues) => {
+    // ... (Fungsi ini tetap sama, tidak perlu diubah)
     if (!apiKey) {
       setIsModalOpen(true);
       return;
@@ -113,8 +126,7 @@ export default function Home() {
       const currentCode = result.code;
       const isModification = currentCode !== null && currentCode.trim() !== "";
 
-      setChatHistory([]);
-      setResult({ code: currentCode, error: null }); 
+      setResult({ code: currentCode, error: null });
       setReasoning(isModification ? `Applying changes: \"${data.prompt}\"...` : "Generating code...");
 
       try {
@@ -160,47 +172,89 @@ export default function Home() {
     setIsModalOpen(false);
   };
 
+  // [BARU] Fungsi untuk membersihkan riwayat obrolan
+  const handleClearChat = () => {
+    setChatHistory([]);
+    localStorage.removeItem(CHAT_HISTORY_KEY);
+    toast({
+      title: "Success",
+      description: "Chat history has been cleared.",
+    });
+  };
+
   const ChatDisplay = () => (
     <div className="relative flex flex-col h-full md:h-full border border-border rounded-md">
       <div className="flex items-center justify-between py-3 px-4 border-b border-border">
         <h3 className="text-lg font-semibold">General Chat</h3>
+        {chatHistory.length > 0 && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Clear chat history">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your chat history.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleClearChat}>Continue</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
-      <ScrollArea className="flex-1 p-4 block w-auto" ref={chatContainerRef}>
-        <div className="space-y-4">
-          {chatHistory.map((msg, index) => (
-            <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-              {msg.role === 'assist' && (
+      <ScrollArea className="flex-1 p-4" ref={chatContainerRef}>
+        {chatHistory.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground overflow-hidden">
+            <Bot className="w-16 h-16 mb-4" />
+            <h3 className="text-lg font-medium">Welcome to CoDa AI!</h3>
+            <p className="text-sm">
+              Start a conversation, or paste a code snippet to get help with debugging.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {chatHistory.map((msg, index) => (
+              <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                {msg.role === 'assist' && (
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback><Bot size={20} /></AvatarFallback>
+                  </Avatar>
+                )}
+                <div className={`rounded-lg p-3 max-w-screen-md text-sm ${msg.role === 'user' ? 'bg-[#353434] shadow text-primary-foreground' : 'bg-muted'}`}>
+                    <div className="prose prose-sm text-wrap w-auto dark:prose-invert max-w-prose prose-p:leading-relaxed prose-code:text-wrap">
+                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content}
+                       </ReactMarkdown>
+                    </div>
+                </div>
+                {msg.role === 'user' && (
+                   <Avatar className="w-8 h-8">
+                     <AvatarFallback><User size={20} /></AvatarFallback>
+                   </Avatar>
+                )}
+              </div>
+            ))}
+             {isLoading && (
+              <div className="flex items-start gap-3">
                 <Avatar className="w-8 h-8">
                   <AvatarFallback><Bot size={20} /></AvatarFallback>
                 </Avatar>
-              )}
-              <div className={`rounded-lg p-3 max-w-screen-md text-sm ${msg.role === 'user' ? 'bg-[#353434] shadow text-primary-foreground' : 'bg-muted'}`}>
-                  <div className="prose prose-sm text-wrap w-auto dark:prose-invert max-w-prose prose-p:leading-relaxed prose-code:text-wrap">
-                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {msg.content}
-                     </ReactMarkdown>
-                  </div>
+                <div className="rounded-lg p-3 text-sm bg-muted">
+                  <p><i>Typing...</i></p>
+                </div>
               </div>
-              {msg.role === 'user' && (
-                 <Avatar className="w-8 h-8">
-                   <AvatarFallback><User size={20} /></AvatarFallback>
-                 </Avatar>
-              )}
-            </div>
-          ))}
-           {isLoading && (
-            <div className="flex items-start gap-3">
-              <Avatar className="w-8 h-8">
-                <AvatarFallback><Bot size={20} /></AvatarFallback>
-              </Avatar>
-              <div className="rounded-lg p-3 text-sm bg-muted">
-                <p><i>Typing...</i></p>
-              </div>
-            </div>
-          )}
-            <div ref={messagesEndRef} />
-        </div>
+            )}
+              <div ref={messagesEndRef} />
+          </div>
+        )}
       </ScrollArea>
+          <small id="appId" className='absolute bottom-0 left-0 text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-fit'>Code Mod Build by Daffa</small>
     </div>
   );
 
@@ -223,7 +277,7 @@ export default function Home() {
           </div>
         )}
         <div className={template === 'public_chat' ? 'h-1/4' : 'h-1/4'}>
-          <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} isChat={false} />
+          <PromptForm onGenerate={handleGenerateCode} isLoading={isLoading} isChat={template === 'public_chat'} setTemplate={setTemplate} />
         </div>
       </div>
     </AppLayout>

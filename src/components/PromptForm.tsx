@@ -1,8 +1,9 @@
+// src/components/PromptForm.tsx
 "use client";
 
 import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bot, Code, Globe, PenSquare, Sparkles } from "lucide-react";
+import { Bot } from "lucide-react";
 import { z } from "zod";
 import React from 'react';
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage, // FormMessage bisa digunakan jika Anda ingin menampilkan error di bawah input
 } from "@/components/ui/form";
 import {
   Select,
@@ -29,12 +29,11 @@ const formSchema = z.object({
   template: z.string({
     required_error: "Please select a template.",
   }),
-  model: z.string({ // [BARU] Tambahan field model
+  model: z.string({
     required_error: "Please select a model.",
   }),
-  prompt: z.string(), // Hapus validasi min(10) dari sini
+  prompt: z.string(),
 }).superRefine((data, ctx) => {
-  // Terapkan validasi kondisional
   if (data.template === 'url_redesign') {
     if (!data.prompt.startsWith('http')) {
       if (data.prompt.length < 5) {
@@ -46,7 +45,6 @@ const formSchema = z.object({
       }
     }
   } else {
-    // Jika bukan URL, terapkan validasi minimal 10 karakter
     if (data.prompt.length < 10) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -63,7 +61,7 @@ type PromptFormProps = {
   onGenerate: (data: PromptFormValues) => void;
   isLoading: boolean;
   isChat: boolean;
-  public_chat?: boolean; // [BARU] Tambahan properti public_chat
+  setTemplate: (template: string) => void; // Tambahkan properti ini
 };
 
 const placeholders: Record<string, string> = {
@@ -74,7 +72,7 @@ const placeholders: Record<string, string> = {
   public_chat: "Start a conversation or ask something.",
 };
 
-export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
+export function PromptForm({ onGenerate, isLoading, setTemplate }: PromptFormProps) {
   const form = useForm<PromptFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -87,8 +85,6 @@ export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
   const { toast } = useToast();
   const template = form.watch("template");
 
-
-
   const onSubmit = (data: PromptFormValues) => {
     onGenerate(data);
     form.reset({
@@ -98,7 +94,6 @@ export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
     });
   };
 
-  // 2. Buat fungsi onInvalid
   const onInvalid = (errors: FieldErrors<PromptFormValues>) => {
     if (errors.prompt) {
       toast({
@@ -111,14 +106,13 @@ export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault(); // Mencegah baris baru
-      form.handleSubmit(onSubmit, onInvalid)(); // Memicu submit form
+      event.preventDefault();
+      form.handleSubmit(onSubmit, onInvalid)();
     }
   };
 
   return (
     <Form {...form}>
-      {/* 3. Pembaruan handleSubmit dengan dua argumen: onValid dan onInvalid */}
       <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="relative justify-end space-y-4 flex flex-col max-h-screen h-full">
         <FormField
           control={form.control}
@@ -141,7 +135,14 @@ export function PromptForm({ onGenerate, isLoading, isChat }: PromptFormProps) {
                     name="template"
                     render={({ field }) => (
                       <FormItem>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setTemplate(value); // Panggil setTemplate di sini
+                          }}
+                          defaultValue={field.value}
+                          disabled={isLoading}
+                        >
                           <FormControl>
                             <SelectTrigger className="border-0 bg-transparent focus:ring-0 focus:ring-offset-0 w-auto">
                               <SelectValue placeholder="Select a base template" />

@@ -1,3 +1,4 @@
+// src/app/actions.ts
 "use server";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -52,12 +53,10 @@ async function fetchHtmlFromUrl(url: string): Promise<string> {
             throw new Error(`Failed to fetch URL content. Status: ${response.status}`);
         }
         const text = await response.text();
-        // Coba ekstrak konten dari dalam body jika memungkinkan untuk mendapatkan hasil yang lebih bersih
         const bodyMatch = text.match(/<body[^>]*>([\s\S]*)<\/body>/i);
         if (bodyMatch && bodyMatch[1]) {
             return bodyMatch[1].trim();
         }
-        // Fallback ke metode lama jika body tidak ditemukan
         const htmlMatch = text.match(/```html\n([\s\S]*?)\n```/);
         if (htmlMatch && htmlMatch[1]) {
             return htmlMatch[1].trim();
@@ -74,7 +73,7 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
   reasoning: string | null;
   error: string | null;
 }> {
-    const geminiModel = model || 'gemini-2.0-flash';
+    const geminiModel = model || 'gemini-2.5-flash';
     
   try {
     if (!apiKey) {
@@ -95,8 +94,8 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
 
       - You MUST build a full-page structure (header, main content, footer).
       - The final output must be a single HTML file.
-      - The response MUST be a valid JSON object with two keys: "redesignedCode" and "reasoning".
-      - The value for "redesignedCode" MUST be a single JSON string containing the full HTML. Ensure all special characters and newlines within the HTML are properly escaped to create a valid JSON string.
+      - The response MUST be a valid JSON object with two keys: \"redesignedCode\" and \"reasoning\".
+      - The value for \"redesignedCode\" MUST be a single JSON string containing the full HTML. Ensure all special characters and newlines within the HTML are properly escaped to create a valid JSON string.
 
       Existing HTML Content to use for the main body:
       \`\`\`html
@@ -111,7 +110,7 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
         fullPrompt = `You are an expert web designer. Your task is to redesign the given HTML code into a modern, visually appealing layout using Tailwind CSS and subtle JavaScript animations.
 
       - The final output must be a single HTML file with Tailwind CSS classes.
-      - The response MUST be a valid JSON object with two keys: "redesignedCode" and "reasoning". The value for "redesignedCode" MUST be a single JSON string with the HTML content properly escaped.
+      - The response MUST be a valid JSON object with two keys: \"redesignedCode\" and \"reasoning\". The value for \"redesignedCode\" MUST be a single JSON string with the HTML content properly escaped.
 
       Existing HTML:
       \`\`\`html
@@ -124,10 +123,27 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
       const historyText = messages.map(msg => {
         return `${msg.role === 'user' ? 'user' : 'assist'}: ${msg.content}`;
       }).join('\n\n');
-      fullPrompt = `You are **CoDa** the "CodeAssist AI Companion," a friendly and knowledgeable AI assistant specializing in software development technology and the latest AI news.\n\n      Your goal is to engage users in discussions, provide insights, and answer questions related to:\n \n 1. Current coding projects or challenges. You can offer advice, ideas, or simply be a conversation partner to help them solve problems.\n 2. The latest news, trends, and developments in technology, particularly Artificial Intelligence.\n \n Your Rules:\n \n - Always maintain a positive, supportive, and enthusiastic tone.\n \n - Provide informative and in-depth answers, not just short answers.\n \n - If you don't know something, be honest and say you don't have the information.\n \n - Don't provide financial or other non-technical advice. Focus on technology and coding.\n \n - Your responses MUST be in JSON format with a single key: \"chatResponse.\"
-      \n      User Message:\n      \n      \
-      \n      ${historyText}\n      \
-      assist`;
+      fullPrompt = `You are **CoDa** the "CodeAssist AI Companion", a friendly and knowledgeable AI assistant specializing in software development, technology, and AI news.
+
+      Your goal is to engage users in discussions and provide expert assistance. Your functions include:
+      
+      1.  **General Conversation**: Discuss coding projects, challenges, and the latest in technology and AI.
+      2.  **Code Debugging**: If a user provides a code snippet, you MUST act as an expert debugger.
+          -   Analyze the code for errors (syntax, logic, etc.).
+          -   Clearly explain the error and its cause.
+          -   Provide the corrected code snippet.
+          -   If the code is functional, suggest improvements for performance or readability.
+      
+      Your Rules:
+      -   Maintain a positive, supportive, and enthusiastic tone.
+      -   Use Unicode emojis to be more expressive (e.g., ✅, 💡, 🐛).
+      -   Provide informative and in-depth answers.
+      -   Your responses MUST be in JSON format with a single key: "chatResponse".
+      
+      User Message History:
+      ${historyText}
+      
+      assist:`;
     } else { 
       const baseCode = existingCode || templates[template] || templates['react'];
       fullPrompt = `You are an expert software developer specializing in REACT and HTML. Based on the user's request, you will modify the provided base code.\n\n      - For \"REACT\" requests, you MUST use shadcn/ui components and ensure the code is a valid React component.\n      - For \"HTML\" requests, you MUST generate a complete and valid HTML document with Tailwind CSS.\n      - The response MUST be a JSON object with two keys: \"improvedCode\" (containing the final code) and \"reasoning\" (a brief explanation of your changes).\n\n      Existing Code (template to modify):\n      \n      \
@@ -140,8 +156,6 @@ export async function generateCode(messages: ChatMessage[], prompt: string, temp
     const response = await result.response;
     let text = response.text();
     
-    // Membersihkan markdown fences jika model terkadang menambahkannya
-    // meskipun tipe mime sudah diatur.
     if (text.startsWith("```json")) {
         text = text.substring(7, text.length - 3).trim();
     } else if (text.startsWith("```")) {

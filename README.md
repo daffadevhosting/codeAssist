@@ -5,15 +5,16 @@ CodeAssist **[Code Mod]** is an AI-powered code generation assistant that helps 
 
 ## Features
 
-- **Code Generation:** Generate code in React and HTML from natural language prompts.
-- **Redesign from HTML:** Redesign existing HTML code into a modern layout.
-- **Redesign from URL:** Redesign a web page from a URL.
+- **Code Generation:** Generate code in `REACT` and `HTML` from `NLP` (natural language prompts).
+- **Redesign from HTML:** Redesign existing `HTML` code into a modern layout.
+- **Redesign from URL:** Redesign a web page from a `URL`. Paste the URL of the website that you want to redesign. Use Gemini-2.5-pro for best results.
 - **AI Reasoning:** Get an explanation of the generated code from the AI.
 - **Bring Your Own API Key:** Users can use their own Gemini API key.
    * ### New Features:
    * **Added Models**: Users can select a model via the 'Bot' icon dropdown. These range from Gemma 3 to Gemini 2.5 Pro.
    * **Added General Chat**: The AI can receive conversations like a typical chatbot and discuss technology by selecting 'Obrolan Umum' from the dropdown.
    * **AI fixer / co-code**: At `Obrolan Umum`, AI can fix errors in problematic script code, and provide suggestions for improvements with new scripts. Simply submit the error-prone script snippet in the input form and submit.
+   * **Chat History**: The AI always has the full context of previous conversations, allowing it to provide coherent and relevant answers, as if it `"remembers"` everything you've discussed. Cool, right? ✨
 
 ## Screen
 
