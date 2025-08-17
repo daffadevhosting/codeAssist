@@ -1,5 +1,5 @@
 // src/app/api/generate/route.ts
-import { generateCode } from '@/app/actions'; // Impor fungsi yang sudah kita buat
+import { botCoder } from '@/app/api/bot-actions'; // Impor fungsi yang sudah kita buat
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const messagesPayload = body.messages || [{ role: 'user', content: userPrompt }];
 
     // Panggil server action
-    const result = await generateCode(messagesPayload, body.template, body.apiKey, body.reasoning, body.model, body.existingCode);
+            const result = await botCoder(messagesPayload, userPrompt, body.template, body.existingCode, body.model);
 
     return NextResponse.json(result);
 

@@ -8,22 +8,22 @@ import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: {
-    default: 'CodeMod - AI Code Generator',
-    template: '%s | CodeMod',
+    default: 'CoDa - AI Code Generator',
+    template: '%s | CoDa',
   },
-  description: 'CodeMod is an AI-powered coding assistant that helps you write code faster using Google Gemini models..',
+  description: 'CoDa is an AI-powered coding assistant that helps you write code faster using Google Gemini models..',
   keywords: ['AI', 'Code Generator', 'Next.js', 'React', 'Tailwind CSS', 'Gemini'],
   openGraph: {
-    title: 'CodeMod - AI Code Generator',
+    title: 'CoDa - AI Code Generator',
     description: 'Create React components and HTML pages easily using the power of AI.',
     type: 'website',
     locale: 'id_ID',
    images: [
      {
-       url: 'https://code-mod.vercel.app/og-image.png',
+       url: 'https://coda-code.vercel.app/og-image.png',
        width: 1200,
        height: 630,
-       alt: 'CodeMod',
+       alt: 'CoDa',
      },
    ],
   },
@@ -41,18 +41,18 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000"></meta>
         <meta name="author" content="DaffaDev"></meta>
         <meta name="publisher" content="Vercel"></meta>
-        <meta property="appId" content="Q29kZSBNb2QgQnVpbGQgYnkgRGFmZmE="/>
+        <meta property="appId" content="Q29EYSBCdWlsZCBieSBEYWZmYQ=="/>
         <meta property="twitter:card" content="summary_large_image"></meta>
-        <meta property="twitter:site" content="@codeMod"></meta>
-        <meta property="twitter:creator" content="@codeMod"></meta>
-        <meta property="twitter:title" content="CodeMod"></meta>
-        <meta property="twitter:description" content="CodeMod is an AI-powered coding assistant that helps you write code faster using Google Gemini models..."></meta>
-        <meta property="twitter:image" content="https://code-mod.vercel.app/og-image.png"></meta>
-
-        <meta property="og:title" content="Code Mod"></meta>
-        <meta property="og:description" content="CodeMod is an AI-powered coding assistant that helps you write code faster using Google Gemini models..."></meta>
-        <meta property="og:image" content="https://code-mod.vercel.app/og-image.png"></meta>
-        <meta property="og:url" content="https://code-mod.vercel.app"></meta>
+        <meta property="twitter:site" content="@CoDa"></meta>
+        <meta property="twitter:creator" content="@CoDa"></meta>
+        <meta property="twitter:title" content="CoDa"></meta>
+        <meta property="twitter:description" content="CoDa is an AI-powered coding assistant that helps you write code faster using Google Gemini models..."></meta>
+        <meta property="twitter:image" content="https://coda-code.vercel.app/og-image.png"></meta>
+        <meta name="keywords" content="AI, artificial intelligence, mini-IDE, code generation, ai generation, deep learning, neural networks, machine learning, nextjs, AI-IDE, Buildr, redesign, web ui, generate code, react"></meta>
+        <meta property="og:title" content="CoDa Code"></meta>
+        <meta property="og:description" content="CoDa is an AI-powered coding assistant that helps you write code faster using Google Gemini models..."></meta>
+        <meta property="og:image" content="https://coda-code.vercel.app/og-image.png"></meta>
+        <meta property="og:url" content="https://coda-code.vercel.app"></meta>
         <meta property="og:type" content="website"></meta>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

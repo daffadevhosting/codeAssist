@@ -1,7 +1,7 @@
 
-# CodeAssist (Code Mod)
+# CodeAssist (CoDa)
 
-CodeAssist **[Code Mod]** is an AI-powered code generation assistant that helps you write code faster. It uses Google's Gemini model to generate code from natural language prompts.
+CodeAssist **[CoDa]** is an AI-powered code generation assistant that helps you write code faster. It uses Google's Gemini model to generate code from natural language prompts.
 
 ## Features
 

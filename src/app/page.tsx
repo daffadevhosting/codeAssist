@@ -254,7 +254,7 @@ export default function Home() {
           </div>
         )}
       </ScrollArea>
-          <small id="appId" className='absolute bottom-0 left-0 text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-fit'>Code Mod Build by Daffa</small>
+          <small id="appId" className='absolute bottom-0 left-0 text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-fit'>CoDa Build by Daffa</small>
     </div>
   );
 
