@@ -181,7 +181,7 @@ export async function botCoder(messages: ChatMessage[], prompt: string, template
     if (code) {
       return { code, reasoning, error: null };
     } else {
-      return { code: null, reasoning: null, error: "Failed to generate code. The AI returned an empty response." };
+      return { code: null, reasoning, error: "Failed to generate code. The AI returned an empty response." };
     }
   } catch (e: any) {
     console.error("Full error:", e);
