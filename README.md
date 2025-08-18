@@ -3,6 +3,12 @@
 
 CodeAssist **[CoDa]** is an AI-powered code generation assistant that helps you write code faster. It uses Google's Gemini model to generate code from natural language prompts.
 
+Launch VS Code Quick Open (Ctrl+P), paste the following command, and press enter.
+```sh
+ext install DaffaDev.coda-vscode
+```
+[vscode ext](https://marketplace.visualstudio.com/items?itemName=DaffaDev.coda-vscode)
+
 ## Features
 
 - **Code Generation:** Generate code in `REACT` and `HTML` from `NLP` (natural language prompts).
