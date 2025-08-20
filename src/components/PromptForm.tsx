@@ -78,7 +78,7 @@ export function PromptForm({ onGenerate, isLoading, setTemplate }: PromptFormPro
     defaultValues: {
       template: "react",
       prompt: "",
-      model: "gemini-2.5-pro",
+      model: "gemini-2.0-flash",
     },
   });
 
