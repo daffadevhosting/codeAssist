@@ -5,6 +5,7 @@ import { useTypingEffect } from "@/hooks/use-typing-effect";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProjectInfo } from "./ProjectInfo";
 
 type AIReasoningProps = {
   reasoning: string | null;
@@ -13,6 +14,7 @@ type AIReasoningProps = {
 
 export function AIReasoning({ reasoning, isLoading }: AIReasoningProps) {
   const typedReasoning = useTypingEffect(reasoning);
+
   if (isLoading) {
     return (
       <div className="h-5/6 w-full">
@@ -31,6 +33,10 @@ export function AIReasoning({ reasoning, isLoading }: AIReasoningProps) {
     );
   }
 
+  if (!reasoning) {
+    return <ProjectInfo />;
+  }
+
   return (
     <Card className="relative w-full h-full">
       <CardHeader className="border-b">
@@ -39,9 +45,9 @@ export function AIReasoning({ reasoning, isLoading }: AIReasoningProps) {
       <CardContent>
         <ScrollArea className="h-full w-full py-4">
           <span className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {typedReasoning}
-          </ReactMarkdown>
+            </ReactMarkdown>
           </span>
         </ScrollArea>
       </CardContent>

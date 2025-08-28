@@ -271,9 +271,12 @@ export default function Home() {
       </div>
 
       <div className="relative flex flex-col justify-end w-full md:w-1/3 p-4 gap-4 h-fit md:h-full overflow-hidden">
-        {template !== 'public_chat' && !isMobile && (
+        {!isMobile && (
           <div className="hidden md:flex flex-1 overflow-y-auto">
-            <AIReasoning reasoning={reasoning} isLoading={isLoading} />
+            <AIReasoning
+              reasoning={template === 'public_chat' ? null : reasoning}
+              isLoading={isLoading}
+            />
           </div>
         )}
         <div className={template === 'public_chat' ? 'h-1/4' : 'h-1/4'}>
