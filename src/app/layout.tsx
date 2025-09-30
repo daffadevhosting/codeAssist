@@ -41,7 +41,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000"></meta>
         <meta name="author" content="DaffaDev"></meta>
         <meta name="publisher" content="Vercel"></meta>
-        <meta property="appId" content="Q29EYSBCdWlsZCBieSBEYWZmYQ=="/>
+        <meta property="appId" content="QnVpbGQgYnkgbkRhbmc="/>
         <meta property="twitter:card" content="summary_large_image"></meta>
         <meta property="twitter:site" content="@CoDa"></meta>
         <meta property="twitter:creator" content="@CoDa"></meta>
