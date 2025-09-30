@@ -122,7 +122,7 @@ export function CodeDisplay({ code, isLoading, template }: CodeDisplayProps) {
         {renderContent()}
         {isLocked && <LockScreen />}
       </div>
-          <small id="appId" style={{ display: isLocked ? 'none' : 'block', width: '100%' }} className='absolute bottom-0 left-0 text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-fit'>CoDa Build by Daffa</small>
+          <small id="appId" style={{ display: isLocked ? 'none' : 'block', width: '100%' }} className='absolute bottom-0 left-0 text-sm md:text-md mb-2 ml-4 text-gray-900 dark:text-primary w-fit'>Build by nDang</small>
     </div>
   );
 }
