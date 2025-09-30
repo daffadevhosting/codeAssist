@@ -76,7 +76,7 @@ export function PromptForm({ onGenerate, isLoading, setTemplate }: PromptFormPro
   const form = useForm<PromptFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      template: "react",
+      template: "public_chat",
       prompt: "",
       model: "gemini-2.0-flash",
     },
