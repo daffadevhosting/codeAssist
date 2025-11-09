@@ -45,10 +45,10 @@ const formSchema = z.object({
       }
     }
   } else {
-    if (data.prompt.length < 10) {
+    if (data.prompt.length < 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Prompt harus memiliki setidaknya 10 karakter.",
+        message: "Prompt harus memiliki setidaknya 1 karakter.",
         path: ['prompt'],
       });
     }
@@ -76,7 +76,7 @@ export function PromptForm({ onGenerate, isLoading, setTemplate }: PromptFormPro
   const form = useForm<PromptFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      template: "public_chat",
+      template: "react",
       prompt: "",
       model: "gemini-2.0-flash",
     },
