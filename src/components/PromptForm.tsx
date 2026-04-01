@@ -78,7 +78,7 @@ export function PromptForm({ onGenerate, isLoading, setTemplate }: PromptFormPro
     defaultValues: {
       template: "react",
       prompt: "",
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
     },
   });
 
@@ -173,9 +173,9 @@ export function PromptForm({ onGenerate, isLoading, setTemplate }: PromptFormPro
                           <DropdownMenuLabel className="flex justify-start items-center gap-2"><Bot className="h-4 w-4" /> Pilih Model AI</DropdownMenuLabel>
                            <DropdownMenuSeparator />
                           <DropdownMenuRadioGroup value={field.value} onValueChange={field.onChange}>
-                            <DropdownMenuRadioItem value="gemini-2.0-flash">Gemini 2.0 Flash</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem value="gemini-2.5-flash">Gemini 2.5 Flash</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="gemini-2.5-pro">Gemini 2.5 Pro</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="gemini-2.5-pro">Gemini 2.5 pro</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="gemini-3-flash-preview">Gemini 3 Flash</DropdownMenuRadioItem>
                           </DropdownMenuRadioGroup>
                         </DropdownMenuContent>
                       </DropdownMenu>
